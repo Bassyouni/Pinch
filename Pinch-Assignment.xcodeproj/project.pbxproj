@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		87875C9A2CC658830023883B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 87875C632CC657E80023883B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 87875C6A2CC657E80023883B;
+			remoteInfo = "Pinch-Assignment";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		87875C6B2CC657E80023883B /* Pinch-Assignment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pinch-Assignment.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		87875C962CC658830023883B /* PinchAssignmentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PinchAssignmentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,22 @@
 			path = "Pinch-Assignment";
 			sourceTree = "<group>";
 		};
+		87875C972CC658830023883B /* PinchAssignmentTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PinchAssignmentTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		87875C682CC657E80023883B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		87875C932CC658830023883B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				87875C6D2CC657E80023883B /* Pinch-Assignment */,
+				87875C972CC658830023883B /* PinchAssignmentTests */,
 				87875C6C2CC657E80023883B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				87875C6B2CC657E80023883B /* Pinch-Assignment.app */,
+				87875C962CC658830023883B /* PinchAssignmentTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +95,29 @@
 			productReference = 87875C6B2CC657E80023883B /* Pinch-Assignment.app */;
 			productType = "com.apple.product-type.application";
 		};
+		87875C952CC658830023883B /* PinchAssignmentTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 87875C9C2CC658830023883B /* Build configuration list for PBXNativeTarget "PinchAssignmentTests" */;
+			buildPhases = (
+				87875C922CC658830023883B /* Sources */,
+				87875C932CC658830023883B /* Frameworks */,
+				87875C942CC658830023883B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				87875C9B2CC658830023883B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				87875C972CC658830023883B /* PinchAssignmentTests */,
+			);
+			name = PinchAssignmentTests;
+			packageProductDependencies = (
+			);
+			productName = PinchAssignmentTests;
+			productReference = 87875C962CC658830023883B /* PinchAssignmentTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +130,10 @@
 				TargetAttributes = {
 					87875C6A2CC657E80023883B = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					87875C952CC658830023883B = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 87875C6A2CC657E80023883B;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				87875C6A2CC657E80023883B /* Pinch-Assignment */,
+				87875C952CC658830023883B /* PinchAssignmentTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		87875C692CC657E80023883B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		87875C942CC658830023883B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		87875C922CC658830023883B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		87875C9B2CC658830023883B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 87875C6A2CC657E80023883B /* Pinch-Assignment */;
+			targetProxy = 87875C9A2CC658830023883B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		87875C772CC657E90023883B /* Debug */ = {
@@ -302,6 +377,42 @@
 			};
 			name = Release;
 		};
+		87875C9D2CC658830023883B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WED766W23U;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = omar.PinchAssignmentTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pinch-Assignment.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pinch-Assignment";
+			};
+			name = Debug;
+		};
+		87875C9E2CC658830023883B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WED766W23U;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = omar.PinchAssignmentTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pinch-Assignment.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pinch-Assignment";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -319,6 +430,15 @@
 			buildConfigurations = (
 				87875C7A2CC657E90023883B /* Debug */,
 				87875C7B2CC657E90023883B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		87875C9C2CC658830023883B /* Build configuration list for PBXNativeTarget "PinchAssignmentTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				87875C9D2CC658830023883B /* Debug */,
+				87875C9E2CC658830023883B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
