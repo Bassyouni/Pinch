@@ -1,0 +1,32 @@
+{
+  "configurations" : [
+    {
+      "id" : "DD9E0970-95BA-4B4E-B7C6-D90F28CBF357",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "language" : "en",
+    "region" : "NL",
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Pinch-Assignment.xcodeproj",
+      "identifier" : "87875C6A2CC657E80023883B",
+      "name" : "Pinch-Assignment"
+    },
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Pinch-Assignment.xcodeproj",
+        "identifier" : "87875C952CC658830023883B",
+        "name" : "PinchAssignmentTests"
+      }
+    }
+  ],
+  "version" : 1
+}

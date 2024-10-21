@@ -19,6 +19,7 @@
 /* Begin PBXFileReference section */
 		87875C6B2CC657E80023883B /* Pinch-Assignment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pinch-Assignment.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		87875C962CC658830023883B /* PinchAssignmentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PinchAssignmentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		87875C9F2CC659240023883B /* Pinch-Assignment.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Pinch-Assignment.xctestplan"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -55,6 +56,7 @@
 		87875C622CC657E80023883B = {
 			isa = PBXGroup;
 			children = (
+				87875C9F2CC659240023883B /* Pinch-Assignment.xctestplan */,
 				87875C6D2CC657E80023883B /* Pinch-Assignment */,
 				87875C972CC658830023883B /* PinchAssignmentTests */,
 				87875C6C2CC657E80023883B /* Products */,
