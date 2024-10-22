@@ -73,6 +73,15 @@ final class RemoteGamesLoaderTests: XCTestCase {
         XCTAssertEqual(Set(try items(forQuery: "sort")), ["rating desc"])
     }
     
+    func test_loadGames_reuqestBodyHasCorrectLimit() throws {
+        let clientID = "any clientID"
+        let sut = makeSUT(clientID: clientID)
+        
+        _ = sut.loadGames()
+    
+        XCTAssertEqual(Set(try items(forQuery: "limit")), ["30"])
+    }
+    
     func test_loadGames_deliversErrorOnError() {
         let sut = makeSUT()
         

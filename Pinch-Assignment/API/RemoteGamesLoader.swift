@@ -49,11 +49,12 @@ final public class RemoteGamesLoader: GamesLoader {
     }
     
     private func addBody(to request: inout URLRequest) {
+        let limit = "limit 30"
         let sorting = "sort rating desc"
         
         let neededFields = ["first_release_date", "rating", "name", "cover.url"]
         let fields = "fields \(neededFields.joined(separator: ","))"
         
-        request.httpBody = "\(fields);\(sorting);".data(using: .utf8, allowLossyConversion: false)
+        request.httpBody = "\(fields);\(sorting);\(limit);".data(using: .utf8, allowLossyConversion: false)
     }
 }
