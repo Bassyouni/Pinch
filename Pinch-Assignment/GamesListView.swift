@@ -35,10 +35,10 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
                 image
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 160, height: 284)
             } placeholder: {
                 ProgressView()
             }
+            .frame(width: 160, height: 284)
             
             Text(game.name)
                 .font(.title2)
