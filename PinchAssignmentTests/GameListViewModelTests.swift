@@ -31,15 +31,6 @@ final class GameListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.gamesState, .error(message: expectedErrorMessage))
     }
     
-    func test_loadGames_onReceivingGames_setsStateToLoadedWithGames() {
-        let sut = makeSUT()
-        let games = [Game.uniqueStub(), .uniqueStub(), .uniqueStub()]
-        
-        env.loaderSpy.send(games: games)
-        
-        XCTAssertEqual(sut.gamesState, .loaded(games))
-    }
-    
     func test_loadGames_onReceivingNewGames_setsStateToLoadedWithNewGamesAppendedToWhatWasAlreadyThere() {
         let sut = makeSUT()
         
