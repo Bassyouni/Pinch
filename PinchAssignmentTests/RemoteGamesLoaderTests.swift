@@ -54,6 +54,15 @@ final class RemoteGamesLoaderTests: XCTestCase {
         let expectedFields = Set(["first_release_date", "rating", "name", "cover.url"])
         XCTAssertEqual(Set(try items(forQuery: "fields")), expectedFields)
     }
+    
+    func test_loadGames_reuqestBodyHasCorrectSorting() throws {
+        let clientID = "any clientID"
+        let sut = makeSUT(clientID: clientID)
+        
+        _ = sut.loadGames()
+    
+        XCTAssertEqual(Set(try items(forQuery: "sort")), ["rating desc"])
+    }
 }
 
 private extension RemoteGamesLoaderTests {

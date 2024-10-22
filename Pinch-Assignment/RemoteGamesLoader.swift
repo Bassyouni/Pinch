@@ -30,7 +30,7 @@ final public class RemoteGamesLoader {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         request.addValue(clientID, forHTTPHeaderField: "Client-ID")
-        request.httpBody = "fields first_release_date,rating,name,cover.url;".data(using: .utf8, allowLossyConversion: false)
+        request.httpBody = "fields first_release_date,rating,name,cover.url;sort rating desc;".data(using: .utf8, allowLossyConversion: false)
 
         _ = client.post(request: request)
         return Empty().eraseToAnyPublisher()
