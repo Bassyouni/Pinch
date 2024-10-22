@@ -26,11 +26,3 @@ private extension GameListViewModelTests {
         return sut
     }
 }
-
-extension XCTestCase {
-    func checkForMemoryLeaks(_ instance: AnyObject, file: StaticString = #filePath, line: UInt = #line) {
-        addTeardownBlock { [weak instance] in
-            XCTAssertNil(instance, "Potential memory leak for instance", file: file, line: line)
-        }
-    }
-}
