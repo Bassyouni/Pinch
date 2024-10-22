@@ -33,11 +33,7 @@ final class GameListViewModelTests: XCTestCase {
     
     func test_loadGames_onReceivingGames_setsStateToLoadedWithGames() {
         let sut = makeSUT()
-        let games = [
-            Game(id: "1", name: "any 1", coverURL: URL(string: "www.any.com")!),
-            Game(id: "2", name: "any 2", coverURL: URL(string: "www.any.com")!),
-            Game(id: "3", name: "any 3", coverURL: URL(string: "www.any.com")!)
-        ]
+        let games = [Game.uniqueStub(), .uniqueStub(), .uniqueStub()]
         
         env.loaderSpy.send(games: games)
         
@@ -47,14 +43,11 @@ final class GameListViewModelTests: XCTestCase {
     func test_loadGames_onReceivingNewGames_setsStateToLoadedWithNewGamesAppendedToWhatWasAlreadyThere() {
         let sut = makeSUT()
         
-        let initalGames = [Game(id: "1", name: "any 1", coverURL: URL(string: "www.any.com")!)]
+        let initalGames = [Game.uniqueStub(), .uniqueStub()]
         env.loaderSpy.send(games: initalGames)
         XCTAssertEqual(sut.gamesState, .loaded(initalGames))
         
-        let newGames = [
-            Game(id: "2", name: "any 1", coverURL: URL(string: "www.any.com")!),
-            Game(id: "3", name: "any 1", coverURL: URL(string: "www.any.com")!)
-        ]
+        let newGames = [Game.uniqueStub(), .uniqueStub()]
         env.loaderSpy.send(games: newGames)
         XCTAssertEqual(sut.gamesState, .loaded(initalGames + newGames))
     }
@@ -92,5 +85,12 @@ private class GamesLoaderSpy: GamesLoader {
     
     func send(games: [Game], at index: Int = 0) {
         loadGamesSubjects[index].send(games)
+    }
+}
+
+extension Game {
+    static func uniqueStub() -> Game {
+        let id = UUID().uuidString
+        return Game(id: id, name: id, coverURL: URL(string: "www.\(id).com")!)
     }
 }
