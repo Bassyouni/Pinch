@@ -76,29 +76,30 @@ final class RemoteGamesLoaderTests: XCTestCase {
     func test_loadGames_deliversErrorOnError() {
         let sut = makeSUT()
         
-        env.client.stubbedPostResult = .failure(NSError(domain: "test", code: 0))
-        
-        expect(sut, toCompleteWith: .failure(.networkError))
+        expect(sut, toCompleteWith: .failure(.networkError), when: {
+            env.client.complete(with: NSError(domain: "test", code: 0))
+        })
     }
     
     func test_loadGames_deliversErrorOnResponseWithInvalidJson() {
         let sut = makeSUT()
-        let inValidJson = Data("".utf8)
         
-        env.client.stubbedPostResult = .success(inValidJson)
-        
-        expect(sut, toCompleteWith: .failure(.invalidData))
+        expect(sut, toCompleteWith: .failure(.invalidData), when: {
+            let inValidJson = Data("".utf8)
+            env.client.complete(withData: inValidJson)
+        })
     }
     
     func test_loadGames_deliversGamesOnHttpResponseWithValidJsonObject() async throws {
         let sut = makeSUT()
         let game1 = makeGame(id: 1, name: "any 1", coverURL: anyURL)
         let game2 = makeGame(id: 2, name: "any 2", coverURL: anyURL)
-        let jsonData = makeJson([game1.json, game2.json])
+    
         
-        env.client.stubbedPostResult = .success(jsonData)
-        
-        expect(sut, toCompleteWith: .success([game1.model, game2.model]))
+        expect(sut, toCompleteWith: .success([game1.model, game2.model]), when: {
+            let jsonData = makeJson([game1.json, game2.json])
+            env.client.complete(withData: jsonData)
+        })
     }
 }
 
@@ -136,6 +137,7 @@ private extension RemoteGamesLoaderTests {
     func expect(
         _ sut: RemoteGamesLoader,
         toCompleteWith expectedResult: Result<[Game], RemoteGamesLoader.Error>,
+        when action: () -> Void,
         file: StaticString = #filePath, line: UInt = #line
     ) {
         let exp = expectation(description: "wait for load completion")
@@ -161,6 +163,7 @@ private extension RemoteGamesLoaderTests {
         })
         .store(in: &cancellables)
         
+        action()
         
         wait(for: [exp], timeout: 0.1)
     }
@@ -191,12 +194,25 @@ private extension RemoteGamesLoaderTests {
 }
 
 private final class HTTPClientSpy: HTTPClient {
+        
+    private var messages = [(request: URLRequest, subject: PassthroughSubject<Data, Error>)]()
     
-    private(set) var requests = [URLRequest]()
-    var stubbedPostResult: Result<Data, Error> = .success(Data())
+    var requests: [URLRequest] {
+        messages.map { $0.request }
+    }
     
-    func post(request: URLRequest) -> Result<Data, Error> {
-        requests.append(request)
-        return stubbedPostResult
+    func post(request: URLRequest) -> AnyPublisher<Data, Error> {
+        let subject = PassthroughSubject<Data, Error>()
+        messages.append((request, subject))
+        return subject.eraseToAnyPublisher()
+    }
+    
+    func complete(with error: Error, at index: Int = 0) {
+        messages[index].subject.send(completion: .failure(error))
+    }
+    
+    func complete(withData data: Data, at index: Int = 0) {
+        messages[index].subject.send(data)
+        messages[index].subject.send(completion: .finished)
     }
 }

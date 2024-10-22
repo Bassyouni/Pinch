@@ -9,7 +9,7 @@ import Combine
 import Foundation
 
 public protocol HTTPClient {
-    func post(request: URLRequest) -> Result<Data, Error>
+    func post(request: URLRequest) -> AnyPublisher<Data, Error>
 }
 
 final public class RemoteGamesLoader {
@@ -36,23 +36,22 @@ final public class RemoteGamesLoader {
         
         addNeededHeaders(to: &request)
         addBody(to: &request)
-    
-        do {
-            let data = try client.post(request: request).get()
-            
-            guard let dtos = try? JSONDecoder().decode([GameDTO].self, from: data) else {
-                return Fail(error: Error.invalidData).eraseToAnyPublisher()
+        
+        return client.post(request: request)
+            .mapError { _ in Error.networkError }
+            .flatMap { data in
+                guard let dtos = try? JSONDecoder().decode([GameDTO].self, from: data) else {
+                    return Fail<[Game], Error>(error: Error.invalidData).eraseToAnyPublisher()
+                }
+                
+                let games = dtos.map { Game(id: "\($0.id)", name: $0.name, coverURL: $0.cover.url) }
+                
+                return Just(games)
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
             }
-            
-            let games = dtos.map { Game(id: "\($0.id)", name: $0.name, coverURL: $0.cover.url) }
-            
-            return Just(games)
-                .mapError { _ in Error.invalidData }
-                .eraseToAnyPublisher()
-            
-        } catch {
-            return Fail(error: Error.networkError).eraseToAnyPublisher()
-        }
+            .mapError { $0 as Swift.Error }
+            .eraseToAnyPublisher()
     }
     
     private func addNeededHeaders(to request: inout URLRequest) {
