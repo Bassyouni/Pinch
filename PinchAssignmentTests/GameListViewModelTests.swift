@@ -11,8 +11,8 @@ import Pinch_Assignment
 final class GameListViewModelTests: XCTestCase {
     private let env = Environment()
     
-    func test_init_gamesIsLoadingByDefault() {
-        XCTAssertEqual(makeSUT().games, .loading)
+    func test_init_gamesStateIsLoadingByDefault() {
+        XCTAssertEqual(makeSUT().gamesState, .loading)
     }
     
 }

@@ -9,11 +9,11 @@ import Combine
 import Foundation
 
 public protocol GameListDisplayLogic: ObservableObject {
-    var games: ViewState<[Game]> { get }
+    var gamesState: ViewState<[Game]> { get }
 }
 
 public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
-    @Published private(set) public var games: ViewState<[Game]> = .loading
+    @Published private(set) public var gamesState: ViewState<[Game]> = .loading
     
     public init() {}
 }

@@ -13,7 +13,7 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
     
     var body: some View {
         VStack {
-            switch viewModel.games {
+            switch viewModel.gamesState {
             case .loading:
                 ProgressView()
                 
@@ -67,10 +67,10 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
 }
 
 private class DisplayLogic: GameListDisplayLogic {
-    let games: ViewState<[Game]>
+    let gamesState: ViewState<[Game]>
     
     static let testImage = URL(string: "https://images.igdb.com/igdb/image/upload/t_cover_med/co4bvj.jpg")!
     init(games: ViewState<[Game]>) {
-        self.games = games
+        self.gamesState = games
     }
 }
