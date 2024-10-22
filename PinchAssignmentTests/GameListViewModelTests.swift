@@ -43,6 +43,21 @@ final class GameListViewModelTests: XCTestCase {
         
         XCTAssertEqual(sut.gamesState, .loaded(games))
     }
+    
+    func test_loadGames_onReceivingNewGames_setsStateToLoadedWithNewGamesAppendedToWhatWasAlreadyThere() {
+        let sut = makeSUT()
+        
+        let initalGames = [Game(id: "1", name: "any 1", coverURL: URL(string: "www.any.com")!)]
+        env.loaderSpy.send(games: initalGames)
+        XCTAssertEqual(sut.gamesState, .loaded(initalGames))
+        
+        let newGames = [
+            Game(id: "2", name: "any 1", coverURL: URL(string: "www.any.com")!),
+            Game(id: "3", name: "any 1", coverURL: URL(string: "www.any.com")!)
+        ]
+        env.loaderSpy.send(games: newGames)
+        XCTAssertEqual(sut.gamesState, .loaded(initalGames + newGames))
+    }
 }
 
 private extension GameListViewModelTests {
