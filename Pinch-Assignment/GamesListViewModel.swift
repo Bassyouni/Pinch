@@ -17,9 +17,11 @@ public protocol GamesLoader {
 }
 
 public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
+    
     @Published private(set) public var gamesState: ViewState<[Game]> = .loaded([])
     
     private let gamesLoader: GamesLoader
+    private var cancellables = Set<AnyCancellable>()
     
     public init(gamesLoader: GamesLoader) {
         self.gamesLoader = gamesLoader
@@ -28,6 +30,15 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     
     func loadGames() {
         gamesState = .loading
-        _ = gamesLoader.loadGames()
+        
+        gamesLoader.loadGames()
+            .sink { [weak self] result in
+                if case .failure = result {
+                    self?.gamesState = .error(message: "Unable to load games")
+                }
+            } receiveValue: { _ in
+                
+            }
+            .store(in: &cancellables)
     }
 }
