@@ -20,6 +20,7 @@ final public class RemoteGamesLoader {
     
     public enum Error: Swift.Error {
         case networkError
+        case invalidData
     }
  
     public init(url: URL, clientID: String, bearerToken: String, client: HTTPClient) {
@@ -36,8 +37,12 @@ final public class RemoteGamesLoader {
         addNeededHeaders(to: &request)
         addBody(to: &request)
     
-        _ = client.post(request: request)
-        return Fail(error: Error.networkError).eraseToAnyPublisher()
+        do  {
+            _ = try client.post(request: request).get()
+            return Fail(error: Error.invalidData).eraseToAnyPublisher()
+        } catch {
+            return Fail(error: Error.networkError).eraseToAnyPublisher()
+        }
     }
     
     private func addNeededHeaders(to request: inout URLRequest) {

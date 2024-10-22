@@ -80,6 +80,15 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         expect(sut, toCompleteWith: .failure(.networkError))
     }
+    
+    func test_loadGames_deliversErrorOnResponseWithInvalidJson() {
+        let sut = makeSUT()
+        let inValidJson = Data("".utf8)
+        
+        env.client.stubbedPostResult = .success(inValidJson)
+        
+        expect(sut, toCompleteWith: .failure(.invalidData))
+    }
 }
 
 private extension RemoteGamesLoaderTests {
