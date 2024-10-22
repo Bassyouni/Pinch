@@ -40,17 +40,9 @@ final public class RemoteGamesLoader {
         return client.trigger(request)
             .mapError { _ in Error.networkError }
             .flatMap { data in
-                guard let dtos = try? JSONDecoder().decode([GameDTO].self, from: data) else {
-                    return Fail<[Game], Error>(error: Error.invalidData).eraseToAnyPublisher()
-                }
-                
-                let games = dtos.map { Game(id: "\($0.id)", name: $0.name, coverURL: $0.cover.url) }
-                
-                return Just(games)
-                    .setFailureType(to: Error.self)
-                    .eraseToAnyPublisher()
+                GamesMapper.map(data: data)
+                    .mapError { $0 as Error }
             }
-            .mapError { $0 as Swift.Error }
             .eraseToAnyPublisher()
     }
     
@@ -70,13 +62,26 @@ final public class RemoteGamesLoader {
     }
 }
 
-
-private struct GameDTO: Decodable {
-    let id: Double
-    let name: String
-    let cover: Cover
-}
-
-private struct Cover: Decodable {
-    let url: URL
+internal final class GamesMapper {
+    private struct GameDTO: Decodable {
+        let id: Double
+        let name: String
+        let cover: Cover
+    }
+    
+    private struct Cover: Decodable {
+        let url: URL
+    }
+    
+    static func map(data: Data) -> AnyPublisher<[Game], RemoteGamesLoader.Error> {
+        guard let dtos = try? JSONDecoder().decode([GameDTO].self, from: data) else {
+            return Fail(error: RemoteGamesLoader.Error.invalidData).eraseToAnyPublisher()
+        }
+        
+        let games = dtos.map { Game(id: "\($0.id)", name: $0.name, coverURL: $0.cover.url) }
+        
+        return Just(games)
+            .setFailureType(to: RemoteGamesLoader.Error.self)
+            .eraseToAnyPublisher()
+    }
 }
