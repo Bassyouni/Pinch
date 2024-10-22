@@ -9,7 +9,7 @@ import Combine
 import Foundation
 
 public protocol HTTPClient {
-    func post(request: URLRequest) -> AnyPublisher<Data, Error>
+    func trigger(_ request: URLRequest) -> AnyPublisher<Data, Error>
 }
 
 final public class RemoteGamesLoader {
@@ -37,7 +37,7 @@ final public class RemoteGamesLoader {
         addNeededHeaders(to: &request)
         addBody(to: &request)
         
-        return client.post(request: request)
+        return client.trigger(request)
             .mapError { _ in Error.networkError }
             .flatMap { data in
                 guard let dtos = try? JSONDecoder().decode([GameDTO].self, from: data) else {

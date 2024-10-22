@@ -201,7 +201,7 @@ private final class HTTPClientSpy: HTTPClient {
         messages.map { $0.request }
     }
     
-    func post(request: URLRequest) -> AnyPublisher<Data, Error> {
+    func trigger(_ request: URLRequest) -> AnyPublisher<Data, Error> {
         let subject = PassthroughSubject<Data, Error>()
         messages.append((request, subject))
         return subject.eraseToAnyPublisher()
