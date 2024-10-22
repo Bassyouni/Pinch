@@ -15,7 +15,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
     func test_init_doesNothing() {
         _ = makeSUT()
         
-        XCTAssertEqual(env.client.requestedURLs, [])
+        XCTAssertEqual(env.client.requests, [])
     }
     
     func test_loadGames_requestsDataFromURL() {
@@ -24,7 +24,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         _ = sut.loadGames()
         
-        XCTAssertEqual(env.client.requestedURLs.map { $0.url }, [url])
+        XCTAssertEqual(env.client.requests.map { $0.url }, [url])
     }
     
     func test_loadGames_reuqestHeadersHasJSONContentType() {
@@ -32,8 +32,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         _ = sut.loadGames()
         
-        let headers = env.client.requestedURLs.map { $0.allHTTPHeaderFields }.first!
-        XCTAssertEqual(headers?["Content-Type"], "application/json")
+        XCTAssertEqual(env.client.requests[0].value(forHTTPHeaderField: "Content-Type"), "application/json")
     }
     
     func test_loadGames_reuqestHeadersHasCorrectAuthorization() {
@@ -42,8 +41,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         _ = sut.loadGames()
         
-        let headers = env.client.requestedURLs.map { $0.allHTTPHeaderFields }.first!
-        XCTAssertEqual(headers?["Authorization"], "Bearer \(bearerToken)")
+        XCTAssertEqual(env.client.requests[0].value(forHTTPHeaderField: "Authorization"), "Bearer \(bearerToken)")
     }
 }
 
@@ -66,11 +64,11 @@ private extension RemoteGamesLoaderTests {
 
 private final class HTTPClientSpy: HTTPClient {
     
-    private(set) var requestedURLs = [URLRequest]()
+    private(set) var requests = [URLRequest]()
     var stubbedPostResult: Result<Data, Error> = .success(Data())
     
     func post(request: URLRequest) -> Result<Data, Error> {
-        requestedURLs.append(request)
+        requests.append(request)
         return stubbedPostResult
     }
 }
