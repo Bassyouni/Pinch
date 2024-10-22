@@ -27,12 +27,26 @@ final public class RemoteGamesLoader {
     
     public func loadGames() -> AnyPublisher<[Game], Error> {
         var request = URLRequest(url: url)
+    
+        addNeededHeaders(to: &request)
+        addBody(to: &request)
+    
+        _ = client.post(request: request)
+        return Empty().eraseToAnyPublisher()
+    }
+    
+    private func addNeededHeaders(to request: inout URLRequest) {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         request.addValue(clientID, forHTTPHeaderField: "Client-ID")
-        request.httpBody = "fields first_release_date,rating,name,cover.url;sort rating desc;".data(using: .utf8, allowLossyConversion: false)
-
-        _ = client.post(request: request)
-        return Empty().eraseToAnyPublisher()
+    }
+    
+    private func addBody(to request: inout URLRequest) {
+        let sorting = "sort rating desc"
+        
+        let neededFields = ["first_release_date", "rating", "name", "cover.url"]
+        let fields = "fields \(neededFields.joined(separator: ","))"
+        
+        request.httpBody = "\(fields);\(sorting);".data(using: .utf8, allowLossyConversion: false)
     }
 }
