@@ -11,6 +11,7 @@ import Pinch_Assignment
 
 final class RemoteGamesLoaderTests: XCTestCase {
     private let env = Environment()
+    private var cancellables = Set<AnyCancellable>()
     
     func test_init_doesNothing() {
         _ = makeSUT()
@@ -70,6 +71,29 @@ final class RemoteGamesLoaderTests: XCTestCase {
         _ = sut.loadGames()
     
         XCTAssertEqual(Set(try items(forQuery: "sort")), ["rating desc"])
+    }
+    
+    func test_loadGames_deliversErrorOnError() {
+        let sut = makeSUT()
+        env.client.stubbedPostResult = .failure(NSError(domain: "test", code: 0))
+        let exp = expectation(description: "wait for load completion")
+        
+        sut.loadGames()
+            .sink { result in
+                switch result {
+                case .finished:
+                    XCTFail("Expected to get error")
+                case .failure(let error):
+                    XCTAssertEqual(error as? RemoteGamesLoader.Error, RemoteGamesLoader.Error.networkError)
+                }
+                
+                exp.fulfill()
+            } receiveValue: { _ in
+                XCTFail("Expected to get error not any values")
+            }
+            .store(in: &cancellables)
+        
+        wait(for: [exp], timeout: 0.1)
     }
 }
 

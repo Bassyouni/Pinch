@@ -17,6 +17,10 @@ final public class RemoteGamesLoader {
     private let clientID: String
     private let bearerToken: String
     private let client: HTTPClient
+    
+    public enum Error: Swift.Error {
+        case networkError
+    }
  
     public init(url: URL, clientID: String, bearerToken: String, client: HTTPClient) {
         self.url = url
@@ -25,7 +29,7 @@ final public class RemoteGamesLoader {
         self.client = client
     }
     
-    public func loadGames() -> AnyPublisher<[Game], Error> {
+    public func loadGames() -> AnyPublisher<[Game], Swift.Error> {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
@@ -33,7 +37,7 @@ final public class RemoteGamesLoader {
         addBody(to: &request)
     
         _ = client.post(request: request)
-        return Empty().eraseToAnyPublisher()
+        return Fail(error: Error.networkError).eraseToAnyPublisher()
     }
     
     private func addNeededHeaders(to request: inout URLRequest) {
