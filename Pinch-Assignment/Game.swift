@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Game: Equatable {
+public struct Game: Equatable {
     let id: String
     let name: String
     let coverURL: URL
