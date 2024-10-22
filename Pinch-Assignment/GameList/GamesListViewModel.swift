@@ -18,7 +18,7 @@ public protocol GamesLoader {
 
 public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     
-    @Published private(set) public var gamesState: ViewState<[Game]> = .loaded([])
+    @Published private(set) public var gamesState: ViewState<[Game]> = .loading
     
     private let gamesLoader: GamesLoader
     private var cancellables = Set<AnyCancellable>()
@@ -29,8 +29,6 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     }
     
     func loadGames() {
-        gamesState = .loading
-        
         gamesLoader.loadGames()
             .map { Self.prefixCoverURLWithHTTPs($0) }
             .sink { [weak self] result in
