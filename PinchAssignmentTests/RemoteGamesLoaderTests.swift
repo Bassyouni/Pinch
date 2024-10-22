@@ -89,6 +89,17 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         expect(sut, toCompleteWith: .failure(.invalidData))
     }
+    
+    func test_loadGames_deliversGamesOnHttpResponseWithValidJsonObject() async throws {
+        let sut = makeSUT()
+        let game1 = makeGame(id: 1, name: "any 1", coverURL: anyURL)
+        let game2 = makeGame(id: 2, name: "any 2", coverURL: anyURL)
+        let jsonData = makeJson([game1.json, game2.json])
+        
+        env.client.stubbedPostResult = .success(jsonData)
+        
+        expect(sut, toCompleteWith: .success([game1.model, game2.model]))
+    }
 }
 
 private extension RemoteGamesLoaderTests {
@@ -152,6 +163,30 @@ private extension RemoteGamesLoaderTests {
         
         
         wait(for: [exp], timeout: 0.1)
+    }
+    
+    private func makeGame(
+        id: Double,
+        name: String,
+        coverURL: URL
+    ) -> (model: Game, json: [String: Any]) {
+        let model = Game(id: "\(id)", name: name, coverURL: coverURL)
+        
+        let json: [String: Any] = [
+            "id": id,
+            "name": name,
+            "cover": ["url": coverURL.absoluteString]
+        ]
+        
+        return (model, json)
+    }
+    
+    private func makeJson(_ games: [[String: Any]]) -> Data {
+        return try! JSONSerialization.data(withJSONObject: games)
+    }
+    
+    var anyURL: URL {
+        URL(string: "//images.igdb.com/igdb/image/upload/t_thumb/co8up5.jpg")!
     }
 }
 

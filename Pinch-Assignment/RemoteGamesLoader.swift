@@ -37,9 +37,19 @@ final public class RemoteGamesLoader {
         addNeededHeaders(to: &request)
         addBody(to: &request)
     
-        do  {
-            _ = try client.post(request: request).get()
-            return Fail(error: Error.invalidData).eraseToAnyPublisher()
+        do {
+            let data = try client.post(request: request).get()
+            
+            guard let dtos = try? JSONDecoder().decode([GameDTO].self, from: data) else {
+                return Fail(error: Error.invalidData).eraseToAnyPublisher()
+            }
+            
+            let games = dtos.map { Game(id: "\($0.id)", name: $0.name, coverURL: $0.cover.url) }
+            
+            return Just(games)
+                .mapError { _ in Error.invalidData }
+                .eraseToAnyPublisher()
+            
         } catch {
             return Fail(error: Error.networkError).eraseToAnyPublisher()
         }
@@ -59,4 +69,15 @@ final public class RemoteGamesLoader {
         
         request.httpBody = "\(fields);\(sorting);".data(using: .utf8, allowLossyConversion: false)
     }
+}
+
+
+private struct GameDTO: Decodable {
+    let id: Double
+    let name: String
+    let cover: Cover
+}
+
+private struct Cover: Decodable {
+    let url: URL
 }

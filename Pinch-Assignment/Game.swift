@@ -8,9 +8,9 @@
 import Foundation
 
 public struct Game: Equatable {
-    let id: String
-    let name: String
-    let coverURL: URL
+    public let id: String
+    public let name: String
+    public let coverURL: URL
     
     public init(id: String, name: String, coverURL: URL) {
         self.id = id
