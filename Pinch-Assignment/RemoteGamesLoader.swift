@@ -8,10 +8,6 @@
 import Combine
 import Foundation
 
-public protocol HTTPClient {
-    func trigger(_ request: URLRequest) -> AnyPublisher<Data, Error>
-}
-
 final public class RemoteGamesLoader {
     private let url: URL
     private let clientID: String
