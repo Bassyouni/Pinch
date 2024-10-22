@@ -8,7 +8,7 @@
 import Combine
 import Foundation
 
-final public class RemoteGamesLoader {
+final public class RemoteGamesLoader: GamesLoader {
     private let url: URL
     private let clientID: String
     private let bearerToken: String
