@@ -14,16 +14,19 @@ public protocol HTTPClient {
 
 final public class RemoteGamesLoader {
     private let url: URL
+    private let bearerToken: String
     private let client: HTTPClient
  
-    public init(url: URL, client: HTTPClient) {
+    public init(url: URL, bearerToken: String, client: HTTPClient) {
         self.url = url
+        self.bearerToken = bearerToken
         self.client = client
     }
     
     public func loadGames() -> AnyPublisher<[Game], Error> {
         var request = URLRequest(url: url)
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         _ = client.post(request: request)
         return Empty().eraseToAnyPublisher()
     }
