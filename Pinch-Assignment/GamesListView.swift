@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-enum ViewState<T: Equatable>: Equatable {
-    case loading
-    case loaded(T)
-    case error(message: String)
-}
-
 protocol GameListViewModel: ObservableObject {
     var games: ViewState<[Game]> { get }
 }
