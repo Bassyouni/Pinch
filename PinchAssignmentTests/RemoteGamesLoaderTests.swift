@@ -75,25 +75,10 @@ final class RemoteGamesLoaderTests: XCTestCase {
     
     func test_loadGames_deliversErrorOnError() {
         let sut = makeSUT()
+        
         env.client.stubbedPostResult = .failure(NSError(domain: "test", code: 0))
-        let exp = expectation(description: "wait for load completion")
         
-        sut.loadGames()
-            .sink { result in
-                switch result {
-                case .finished:
-                    XCTFail("Expected to get error")
-                case .failure(let error):
-                    XCTAssertEqual(error as? RemoteGamesLoader.Error, RemoteGamesLoader.Error.networkError)
-                }
-                
-                exp.fulfill()
-            } receiveValue: { _ in
-                XCTFail("Expected to get error not any values")
-            }
-            .store(in: &cancellables)
-        
-        wait(for: [exp], timeout: 0.1)
+        expect(sut, toCompleteWith: .failure(.networkError))
     }
 }
 
@@ -126,6 +111,38 @@ private extension RemoteGamesLoaderTests {
             .map { String($0) }
         
         return try XCTUnwrap(items, file: file, line: line)
+    }
+    
+    func expect(
+        _ sut: RemoteGamesLoader,
+        toCompleteWith expectedResult: Result<[Game], RemoteGamesLoader.Error>,
+        file: StaticString = #filePath, line: UInt = #line
+    ) {
+        let exp = expectation(description: "wait for load completion")
+        var receivedGames: [Game]?
+        
+        sut.loadGames().sink(receiveCompletion: { completion in
+            
+            switch (completion, expectedResult) {
+            case let (.finished, .success(expectedGames)):
+                XCTAssertEqual(receivedGames, expectedGames, file: file, line: line)
+                
+            case let (.failure(receivedError as RemoteGamesLoader.Error), .failure(expectedError)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+                
+            default:
+                XCTFail("Expected result \(expectedResult) got \(completion) instead", file: file, line: line)
+            }
+            
+            exp.fulfill()
+            
+        }, receiveValue: { games in
+            receivedGames = games
+        })
+        .store(in: &cancellables)
+        
+        
+        wait(for: [exp], timeout: 0.1)
     }
 }
 
