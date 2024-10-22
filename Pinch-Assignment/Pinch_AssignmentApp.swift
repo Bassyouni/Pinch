@@ -11,7 +11,11 @@ import SwiftUI
 struct Pinch_AssignmentApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            GamesListView(viewModel: NullViewModel())
         }
     }
+}
+
+class NullViewModel: GameListViewModel {
+    var games: ViewState<[Game]> = .loading
 }
