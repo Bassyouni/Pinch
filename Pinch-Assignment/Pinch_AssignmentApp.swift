@@ -11,7 +11,12 @@ import SwiftUI
 struct Pinch_AssignmentApp: App {
     var body: some Scene {
         WindowGroup {
-            GamesListView(viewModel: NullViewModel())
+            let url = URL(string: "https://api.igdb.com/v4/games")!
+            let clientId = "ctgyj1u5eoe8ynxsoi0anhpctz1oo6"
+            let bearerToken = "iawmqtbgk5h47jjglcn4v7sofkue9v"
+            let client = URLSessionHTTPClient()
+            let loader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
+            GamesListView(viewModel: GameListViewModel(gamesLoader: loader))
         }
     }
 }
