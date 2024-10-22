@@ -13,12 +13,6 @@ enum ViewState<T: Equatable>: Equatable {
     case error(message: String)
 }
 
-struct Game: Equatable {
-    let id: String
-    let name: String
-    let coverURL: URL
-}
-
 protocol GameListViewModel: ObservableObject {
     var games: ViewState<[Game]> { get }
 }
