@@ -30,6 +30,19 @@ final class GameListViewModelTests: XCTestCase {
         let expectedErrorMessage = "Unable to load games"
         XCTAssertEqual(sut.gamesState, .error(message: expectedErrorMessage))
     }
+    
+    func test_loadGames_onReceivingGames_setsStateToLoadedWithGames() {
+        let sut = makeSUT()
+        let games = [
+            Game(id: "1", name: "any 1", coverURL: URL(string: "www.any.com")!),
+            Game(id: "2", name: "any 2", coverURL: URL(string: "www.any.com")!),
+            Game(id: "3", name: "any 3", coverURL: URL(string: "www.any.com")!)
+        ]
+        
+        env.loaderSpy.send(games: games)
+        
+        XCTAssertEqual(sut.gamesState, .loaded(games))
+    }
 }
 
 private extension GameListViewModelTests {
@@ -60,5 +73,9 @@ private class GamesLoaderSpy: GamesLoader {
     
     func finishLoadGamesWithError(at index: Int = 0) {
         loadGamesSubjects[index].send(completion: .failure(NSError(domain: "Test", code: 1)))
+    }
+    
+    func send(games: [Game], at index: Int = 0) {
+        loadGamesSubjects[index].send(games)
     }
 }

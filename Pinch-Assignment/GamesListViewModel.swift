@@ -36,8 +36,8 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
                 if case .failure = result {
                     self?.gamesState = .error(message: "Unable to load games")
                 }
-            } receiveValue: { _ in
-                
+            } receiveValue: { [weak self] games in
+                self?.gamesState = .loaded(games)
             }
             .store(in: &cancellables)
     }
