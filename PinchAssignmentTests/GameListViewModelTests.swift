@@ -42,6 +42,19 @@ final class GameListViewModelTests: XCTestCase {
         env.loaderSpy.send(games: newGames)
         XCTAssertEqual(sut.gamesState, .loaded(initalGames + newGames))
     }
+    
+    func test_loadGames_onReceivingNewGames_prefixCoverURLWithHTTPs() {
+        let sut = makeSUT()
+        let urlWithNoPrefix = "//www.url.com"
+        let urlWithPrefix = "https://www.url.com"
+        let games = [Game.uniqueStub(url: urlWithNoPrefix), .uniqueStub(url: urlWithPrefix)]
+        
+        env.loaderSpy.send(games: games)
+        
+        let expectedGames = games.map { Game(id: $0.id, name: $0.name, coverURL: URL(string: urlWithPrefix)!) }
+        XCTAssertEqual(sut.gamesState, .loaded(expectedGames))
+    }
+    
 }
 
 private extension GameListViewModelTests {
@@ -80,8 +93,8 @@ private class GamesLoaderSpy: GamesLoader {
 }
 
 extension Game {
-    static func uniqueStub() -> Game {
+    static func uniqueStub(url: String? = nil) -> Game {
         let id = UUID().uuidString
-        return Game(id: id, name: id, coverURL: URL(string: "www.\(id).com")!)
+        return Game(id: id, name: id, coverURL: URL(string: url ?? "https://www.url.com")!)
     }
 }

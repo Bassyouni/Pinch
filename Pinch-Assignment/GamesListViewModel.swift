@@ -32,6 +32,7 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
         gamesState = .loading
         
         gamesLoader.loadGames()
+            .map { Self.prefixCoverURLWithHTTPs($0) }
             .sink { [weak self] result in
                 if case .failure = result {
                     self?.gamesState = .error(message: "Unable to load games")
@@ -45,5 +46,17 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
                 }
             }
             .store(in: &cancellables)
+    }
+    
+    private static func prefixCoverURLWithHTTPs(_ games: [Game]) -> [Game] {
+        games.map { game in
+            var urlString = game.coverURL.absoluteString
+            
+            if !urlString.hasPrefix("https:") {
+                urlString = "https:" + urlString
+            }
+            
+            return Game(id: game.id, name: game.name, coverURL: URL(string: urlString) ?? game.coverURL)
+        }
     }
 }
