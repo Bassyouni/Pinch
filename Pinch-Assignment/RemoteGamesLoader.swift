@@ -13,13 +13,17 @@ public protocol HTTPClient {
 }
 
 final public class RemoteGamesLoader {
+    private let url: URL
     private let client: HTTPClient
  
-    public init(client: HTTPClient) {
+    public init(url: URL, client: HTTPClient) {
+        self.url = url
         self.client = client
     }
     
-    func loadGames() -> AnyPublisher<[Game], Error> {
+    public func loadGames() -> AnyPublisher<[Game], Error> {
+        let request = URLRequest(url: url)
+        _ = client.post(request: request)
         return Empty().eraseToAnyPublisher()
     }
 }

@@ -17,6 +17,15 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         XCTAssertEqual(env.client.requestedURLs, [])
     }
+    
+    func test_loadGames_requestsDataFromURL() {
+        let url = URL(string: "www.any-url.com")
+        let sut = makeSUT(url: url!)
+        
+        _ = sut.loadGames()
+        
+        XCTAssertEqual(env.client.requestedURLs.map { $0.url }, [url])
+    }
 }
 
 private extension RemoteGamesLoaderTests {
@@ -24,8 +33,8 @@ private extension RemoteGamesLoaderTests {
         let client = HTTPClientSpy()
     }
     
-    func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> RemoteGamesLoader {
-        let sut = RemoteGamesLoader(client: env.client)
+    func makeSUT(url: URL = URL(string: "www.any.com")!, file: StaticString = #filePath, line: UInt = #line) -> RemoteGamesLoader {
+        let sut = RemoteGamesLoader(url: url, client: env.client)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
