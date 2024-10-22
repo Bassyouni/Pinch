@@ -43,6 +43,15 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         XCTAssertEqual(env.client.requests[0].value(forHTTPHeaderField: "Authorization"), "Bearer \(bearerToken)")
     }
+    
+    func test_loadGames_reuqestHeadersHasCorrectClientID() {
+        let clientID = "any clientID"
+        let sut = makeSUT(clientID: clientID)
+        
+        _ = sut.loadGames()
+        
+        XCTAssertEqual(env.client.requests[0].value(forHTTPHeaderField: "Client-ID"), clientID)
+    }
 }
 
 private extension RemoteGamesLoaderTests {
@@ -53,10 +62,11 @@ private extension RemoteGamesLoaderTests {
     func makeSUT(
         url: URL = URL(string: "www.any.com")!,
         bearerToken: String = "any bearerToken",
+        clientID: String = "clientID",
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> RemoteGamesLoader {
-        let sut = RemoteGamesLoader(url: url, bearerToken: bearerToken, client: env.client)
+        let sut = RemoteGamesLoader(url: url, clientID: clientID, bearerToken: bearerToken, client: env.client)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }

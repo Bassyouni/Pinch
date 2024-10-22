@@ -14,11 +14,13 @@ public protocol HTTPClient {
 
 final public class RemoteGamesLoader {
     private let url: URL
+    private let clientID: String
     private let bearerToken: String
     private let client: HTTPClient
  
-    public init(url: URL, bearerToken: String, client: HTTPClient) {
+    public init(url: URL, clientID: String, bearerToken: String, client: HTTPClient) {
         self.url = url
+        self.clientID = clientID
         self.bearerToken = bearerToken
         self.client = client
     }
@@ -27,6 +29,7 @@ final public class RemoteGamesLoader {
         var request = URLRequest(url: url)
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        request.addValue(clientID, forHTTPHeaderField: "Client-ID")
         _ = client.post(request: request)
         return Empty().eraseToAnyPublisher()
     }
