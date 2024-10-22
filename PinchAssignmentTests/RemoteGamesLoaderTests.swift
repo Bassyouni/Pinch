@@ -45,22 +45,14 @@ final class RemoteGamesLoaderTests: XCTestCase {
         XCTAssertEqual(env.client.requests[0].value(forHTTPHeaderField: "Authorization"), "Bearer \(bearerToken)")
     }
     
-    func test_loadGames_reuqestBodyHasCorrectHasFieldsNeededAndCorrectSorting() throws {
+    func test_loadGames_reuqestBodyHasCorrectHasFieldsNeeded() throws {
         let clientID = "any clientID"
         let sut = makeSUT(clientID: clientID)
         
         _ = sut.loadGames()
         
-        let httpBody = try XCTUnwrap(env.client.requests[0].httpBody)
-        let requestBodyString = String(data: httpBody, encoding: .utf8)!
-        let components = requestBodyString.split(separator: ";")
-        let fieldsComponents = components
-            .first(where: { $0.contains("fields") })?
-            .replacingOccurrences(of: "fields ", with: "")
-            .split(separator: ",")
-            .map { String($0) }
-        
-        XCTAssertEqual(Set(fieldsComponents!), Set(["first_release_date", "rating", "name", "cover.url"]))
+        let expectedFields = Set(["first_release_date", "rating", "name", "cover.url"])
+        XCTAssertEqual(Set(try items(forQuery: "fields")), expectedFields)
     }
 }
 
@@ -79,6 +71,20 @@ private extension RemoteGamesLoaderTests {
         let sut = RemoteGamesLoader(url: url, clientID: clientID, bearerToken: bearerToken, client: env.client)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+    
+    func items(forQuery query: String, file: StaticString = #filePath, line: UInt = #line) throws -> [String] {
+        let httpBodyData = try XCTUnwrap(env.client.requests[0].httpBody, file: file, line: line)
+        let httpBodyString = try XCTUnwrap(String(data: httpBodyData, encoding: .utf8), file: file, line: line)
+        
+        let items = httpBodyString
+            .split(separator: ";")
+            .first(where: { $0.contains(query) })?
+            .replacingOccurrences(of: "\(query) ", with: "")
+            .split(separator: ",")
+            .map { String($0) }
+        
+        return try XCTUnwrap(items, file: file, line: line)
     }
 }
 
