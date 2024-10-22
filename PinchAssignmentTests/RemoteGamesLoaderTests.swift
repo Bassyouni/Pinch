@@ -26,6 +26,15 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         XCTAssertEqual(env.client.requestedURLs.map { $0.url }, [url])
     }
+    
+    func test_loadGames_reuqestHeadersHasJSONContentType() {
+        let sut = makeSUT()
+        
+        _ = sut.loadGames()
+        
+        let headers = env.client.requestedURLs.map { $0.allHTTPHeaderFields }.first!
+        XCTAssertEqual(headers?["Content-Type"], "application/json")
+    }
 }
 
 private extension RemoteGamesLoaderTests {
