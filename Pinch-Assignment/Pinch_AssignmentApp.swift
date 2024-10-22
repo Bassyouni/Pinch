@@ -16,7 +16,10 @@ struct Pinch_AssignmentApp: App {
             let bearerToken = "iawmqtbgk5h47jjglcn4v7sofkue9v"
             let client = URLSessionHTTPClient()
             let loader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
-            GamesListView(viewModel: GameListViewModel(gamesLoader: loader))
+            
+            NavigationView {
+                GamesListView(viewModel: GameListViewModel(gamesLoader: loader))
+            }
         }
     }
 }
