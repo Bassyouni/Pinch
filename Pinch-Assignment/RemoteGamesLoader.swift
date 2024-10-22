@@ -61,27 +61,3 @@ final public class RemoteGamesLoader {
         request.httpBody = "\(fields);\(sorting);".data(using: .utf8, allowLossyConversion: false)
     }
 }
-
-internal final class GamesMapper {
-    private struct GameDTO: Decodable {
-        let id: Double
-        let name: String
-        let cover: Cover
-    }
-    
-    private struct Cover: Decodable {
-        let url: URL
-    }
-    
-    static func map(data: Data) -> AnyPublisher<[Game], RemoteGamesLoader.Error> {
-        guard let dtos = try? JSONDecoder().decode([GameDTO].self, from: data) else {
-            return Fail(error: RemoteGamesLoader.Error.invalidData).eraseToAnyPublisher()
-        }
-        
-        let games = dtos.map { Game(id: "\($0.id)", name: $0.name, coverURL: $0.cover.url) }
-        
-        return Just(games)
-            .setFailureType(to: RemoteGamesLoader.Error.self)
-            .eraseToAnyPublisher()
-    }
-}
