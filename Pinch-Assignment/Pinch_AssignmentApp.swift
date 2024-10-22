@@ -18,7 +18,7 @@ struct Pinch_AssignmentApp: App {
             let loader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
             
             NavigationView {
-                GamesListView(viewModel: GameListViewModel(gamesLoader: loader))
+                GamesListView(viewModel: GameListViewModel(gamesLoader: MainQueueDispatchDecorator(loader)))
             }
         }
     }
