@@ -55,6 +55,19 @@ final class GameListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.gamesState, .loaded(expectedGames))
     }
     
+    func test_loadGames_onReceivingNewGames_replacesCoverURLSizeToSizeThatFitsGamesList() {
+        let sut = makeSUT()
+        let validSizeURL = "https://www.url.com/path/t_cover_med/photoName.jpg"
+        let otherSizeURL1 = "https://www.url.com/path/t_thumb/photoName.jpg"
+        let otherSizeURL2 = "https://www.url.com/path/t_cover_small/photoName.jpg"
+        
+        let games = [Game.uniqueStub(url: otherSizeURL1), .uniqueStub(url: otherSizeURL2)]
+        
+        env.loaderSpy.send(games: games)
+        
+        let expectedGames = games.map { Game(id: $0.id, name: $0.name, coverURL: URL(string: validSizeURL)!) }
+        XCTAssertEqual(sut.gamesState, .loaded(expectedGames))
+    }
 }
 
 private extension GameListViewModelTests {

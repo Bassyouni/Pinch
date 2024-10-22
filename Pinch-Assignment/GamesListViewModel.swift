@@ -56,6 +56,10 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
                 urlString = "https:" + urlString
             }
             
+            if let range = urlString.range(of: "t_[^/]+", options: .regularExpression) {
+                urlString.replaceSubrange(range, with: "t_cover_med")
+            }
+            
             return Game(id: game.id, name: game.name, coverURL: URL(string: urlString) ?? game.coverURL)
         }
     }
