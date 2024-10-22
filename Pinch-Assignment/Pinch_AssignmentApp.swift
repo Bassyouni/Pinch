@@ -16,6 +16,6 @@ struct Pinch_AssignmentApp: App {
     }
 }
 
-class NullViewModel: GameListViewModel {
+class NullViewModel: GameListDisplayLogic {
     var games: ViewState<[Game]> = .loading
 }

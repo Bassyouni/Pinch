@@ -7,11 +7,7 @@
 
 import SwiftUI
 
-protocol GameListViewModel: ObservableObject {
-    var games: ViewState<[Game]> { get }
-}
-
-struct GamesListView<ViewModel: GameListViewModel> : View {
+struct GamesListView<ViewModel: GameListDisplayLogic> : View {
     
     @ObservedObject var viewModel: ViewModel
     
@@ -53,24 +49,24 @@ struct GamesListView<ViewModel: GameListViewModel> : View {
 
 #Preview("Games List") {
     NavigationView {
-        GamesListView(viewModel: PreviewsViewModel(games: .loaded([
-            Game(id: "1", name: "The Witcher 3", coverURL: PreviewsViewModel.testImage),
-            Game(id: "2", name: "The Last of us", coverURL: PreviewsViewModel.testImage),
-            Game(id: "3", name: "Counter Strike", coverURL: PreviewsViewModel.testImage),
-            Game(id: "4", name: "Red Alert", coverURL: PreviewsViewModel.testImage),
+        GamesListView(viewModel: DisplayLogic(games: .loaded([
+            Game(id: "1", name: "The Witcher 3", coverURL: DisplayLogic.testImage),
+            Game(id: "2", name: "The Last of us", coverURL: DisplayLogic.testImage),
+            Game(id: "3", name: "Counter Strike", coverURL: DisplayLogic.testImage),
+            Game(id: "4", name: "Red Alert", coverURL: DisplayLogic.testImage),
         ])))
     }
 }
 
 #Preview("Error State") {
-    GamesListView(viewModel: PreviewsViewModel(games: .error(message: "Something Went Wrong\nTry again later")))
+    GamesListView(viewModel: DisplayLogic(games: .error(message: "Something Went Wrong\nTry again later")))
 }
 
 #Preview("Loading State") {
-    GamesListView(viewModel: PreviewsViewModel(games: .loading))
+    GamesListView(viewModel: DisplayLogic(games: .loading))
 }
 
-private class PreviewsViewModel: GameListViewModel {
+private class DisplayLogic: GameListDisplayLogic {
     let games: ViewState<[Game]>
     
     static let testImage = URL(string: "https://images.igdb.com/igdb/image/upload/t_cover_med/co4bvj.jpg")!
