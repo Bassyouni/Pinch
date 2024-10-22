@@ -36,6 +36,14 @@ final class RemoteGamesLoaderTests: XCTestCase {
         XCTAssertEqual(env.client.requests[0].value(forHTTPHeaderField: "Content-Type"), "application/json")
     }
     
+    func test_loadGames_reuqestMethodIsSetToPOST() {
+        let sut = makeSUT()
+        
+        _ = sut.loadGames()
+        
+        XCTAssertEqual(env.client.requests[0].httpMethod, "POST")
+    }
+    
     func test_loadGames_reuqestHeadersHasCorrectAuthorization() {
         let bearerToken = "some bearerToken"
         let sut = makeSUT(bearerToken: bearerToken)

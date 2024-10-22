@@ -27,7 +27,8 @@ final public class RemoteGamesLoader {
     
     public func loadGames() -> AnyPublisher<[Game], Error> {
         var request = URLRequest(url: url)
-    
+        request.httpMethod = "POST"
+        
         addNeededHeaders(to: &request)
         addBody(to: &request)
     
