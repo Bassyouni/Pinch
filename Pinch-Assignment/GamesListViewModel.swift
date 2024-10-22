@@ -12,8 +12,17 @@ public protocol GameListDisplayLogic: ObservableObject {
     var gamesState: ViewState<[Game]> { get }
 }
 
+public protocol GamesLoader {
+    func loadGames() -> AnyPublisher<[Game], Error>
+}
+
 public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     @Published private(set) public var gamesState: ViewState<[Game]> = .loading
     
-    public init() {}
+    private let gamesLoader: GamesLoader
+    
+    public init(gamesLoader: GamesLoader) {
+        self.gamesLoader = gamesLoader
+        _ = gamesLoader.loadGames()
+    }
 }
