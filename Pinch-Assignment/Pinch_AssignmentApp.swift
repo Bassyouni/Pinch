@@ -10,47 +10,26 @@ import SwiftUI
 @main
 struct Pinch_AssignmentApp: App {
     
-    @State var router = NavigationRouter()
+    private let viewComposer: ViewComposer
+    @StateObject var router: NavigationRouter
+    
+    init() {
+        let router = NavigationRouter()
+        self._router = .init(wrappedValue: router)
+        viewComposer = ViewComposer(router: router)
+    }
     
     var body: some Scene {
         WindowGroup {
             AppNavigationView(router: router, view: { route in
                 switch route {
                 case .gameList:
-                    makeGameListView(router)
+                    viewComposer.composeGameListView
                     
                 case .gameDetails(let game):
-                    makeGameDetailsView(game)
+                    viewComposer.composeGameDetailsView(with: game)
                 }
             })
         }
-    }
-    
-    private func makeGameListView(_ router: NavigationRouter) -> some View {
-        let url = URL(string: "https://api.igdb.com/v4/games")!
-        let clientId = "ctgyj1u5eoe8ynxsoi0anhpctz1oo6"
-        let bearerToken = "iawmqtbgk5h47jjglcn4v7sofkue9v"
-        
-        let client = URLSessionHTTPClient()
-        let remoteLoader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
-        let store = CoreDataGamesStore()
-        let gamesLoader = LocalWithRemoteFallbackGamesLoader(store: store, remote: remoteLoader)
-        
-        let viewModel = GameListViewModel(
-            gamesLoader: MainQueueDispatchDecorator(gamesLoader),
-            coordinate: { destination in
-                switch destination {
-                case .gameDetails(let game):
-                    router.push(.gameDetails(game))
-                }
-            }
-        )
-        
-        return GamesListView(viewModel: viewModel)
-    }
-    
-    @ViewBuilder
-    private func makeGameDetailsView(_ game: Game) -> some View {
-        Text(game.name)
     }
 }
