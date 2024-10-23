@@ -19,6 +19,9 @@ public final class LocalWithRemoteFallbackGamesLoader: GamesLoader {
     
     public func loadGames() -> AnyPublisher<[Game], Error> {
         return self.store.loadGames()
+            .catch({ _ in
+                self.remote.loadGames()
+            })
             .flatMap { games in
                 if !games.isEmpty {
                     return Just(games)
