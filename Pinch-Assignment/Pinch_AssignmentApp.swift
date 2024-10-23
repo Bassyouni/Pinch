@@ -9,17 +9,20 @@ import SwiftUI
 
 @main
 struct Pinch_AssignmentApp: App {
+    
+    @State var router = NavigationRouter()
+    
     var body: some Scene {
         WindowGroup {
-            AppNavigationView { view, router in
-                switch view {
+            AppNavigationView(router: router, view: { route in
+                switch route {
                 case .gameList:
                     makeGameListView(router)
                     
                 case .gameDetails(let game):
                     makeGameDetailsView(game)
                 }
-            }
+            })
         }
     }
     

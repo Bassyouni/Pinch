@@ -9,22 +9,21 @@ import SwiftUI
 
 struct AppNavigationView<Content: View>: View {
     
-    typealias MakeView = (NavigationRoute, NavigationRouter) -> Content
+    let view: (NavigationRoute) -> Content
+    @StateObject var router: NavigationRouter
     
-    let view: MakeView
-    @StateObject var router = NavigationRouter()
-    
-    init(@ViewBuilder view: @escaping MakeView) {
+    init(router: NavigationRouter, @ViewBuilder view: @escaping (NavigationRoute) -> Content) {
         self.view = view
+        self._router = .init(wrappedValue: router)
     }
     
     var body: some View {
         NavigationStack(path: $router.stack) {
-            view(router.root, router)
+            view(router.root)
                 .navigationDestination(
                     for: NavigationRoute.self,
                     destination: { destination in
-                        view(destination, router)
+                        view(destination)
                             .id(destination)
                     }
                 )
