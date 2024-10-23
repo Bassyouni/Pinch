@@ -142,8 +142,4 @@ private extension CoreDataGamesRepositoryTests {
         wait(for: [exp], timeout: 1.0)
         return savingError
     }
-    
-    func uniqueGames() -> [Game] {
-        return [.uniqueStub(), .uniqueStub()]
-    }
 }
