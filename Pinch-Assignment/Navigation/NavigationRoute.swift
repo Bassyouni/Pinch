@@ -9,5 +9,5 @@ import Foundation
 
 enum NavigationRoute: Hashable {
     case gameList
-    case gameDetails
+    case gameDetails(Game)
 }

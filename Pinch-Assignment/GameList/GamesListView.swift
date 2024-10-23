@@ -20,8 +20,11 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
                 ProgressView()
                 
             case .loaded(let games):
-                List(games, id: \.id) { gameCell($0) }
-                    .refreshable { await refreshGames() }
+                List(games, id: \.id) { game in
+                    gameCell(game)
+                        .onTapGesture { viewModel.didSelectGame(game)  }
+                }
+                .refreshable { await refreshGames() }
                 
             case .error(let errorMessage):
                 Text(errorMessage)

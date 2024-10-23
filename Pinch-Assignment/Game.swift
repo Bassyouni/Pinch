@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Game: Equatable {
+public struct Game: Equatable, Hashable {
     public let id: String
     public let name: String
     public let coverURL: URL
