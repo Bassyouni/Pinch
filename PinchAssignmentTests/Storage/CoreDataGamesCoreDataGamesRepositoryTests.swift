@@ -22,16 +22,16 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
     func test_saveGames_deliversNoErrorOnEmptyRepository() {
         let sut = makeSUT()
         
-        let savingError = save([Game.uniqueStub(), .uniqueStub()], to: sut)
+        let savingError = save(uniqueGames(), to: sut)
         
         XCTAssertNil(savingError, "Expected to save games successfully")
     }
     
     func test_saveGames_deliversNoErrorOnNonEmptyRepository() {
         let sut = makeSUT()
-        _ = save([Game.uniqueStub(), .uniqueStub()], to: sut)
+        save(uniqueGames(), to: sut)
         
-        let savingError = save([Game.uniqueStub(), .uniqueStub()], to: sut)
+        let savingError = save(uniqueGames(), to: sut)
         
         XCTAssertNil(savingError, "Expected to append games successfully")
     }
@@ -74,6 +74,7 @@ private extension CoreDataGamesRepositoryTests {
         wait(for: [exp], timeout: 1.0)
     }
     
+    @discardableResult
     func save(_ games: [Game], to sut: CoreDataGamesRepository) -> Error? {
         let exp = expectation(description: "Wait for games saving")
         var savingError: Error?
@@ -89,5 +90,9 @@ private extension CoreDataGamesRepositoryTests {
         
         wait(for: [exp], timeout: 1.0)
         return savingError
+    }
+    
+    func uniqueGames() -> [Game] {
+        return [.uniqueStub(), .uniqueStub()]
     }
 }
