@@ -138,10 +138,3 @@ private class GamesLoaderSpy: GamesLoader {
         loadGamesSubjects[index].send(games)
     }
 }
-
-extension Game {
-    static func uniqueStub(url: String? = nil) -> Game {
-        let id = UUID().uuidString
-        return Game(id: id, name: id, coverURL: URL(string: url ?? "https://www.url.com")!)
-    }
-}
