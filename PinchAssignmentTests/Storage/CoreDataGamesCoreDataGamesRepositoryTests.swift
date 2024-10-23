@@ -15,25 +15,8 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
     func test_loadGames_hasNoSideEffectsOnEmptyRepository() {
         let sut = makeSUT()
         
-        let exp = expectation(description: "Wait for cache retrieval")
-        var receivedGames: [Game]?
-        
-        sut.loadGames()
-            .sink { result in
-                switch result {
-                case .finished:
-                    XCTAssertEqual(receivedGames, [])
-                default:
-                    XCTFail("Expected to receive no elements successfully")
-                }
-                
-                exp.fulfill()
-            } receiveValue: { games in
-                receivedGames = games
-            }
-            .store(in: &cancellables)
-        
-        wait(for: [exp], timeout: 1.0)
+        expect(sut, toLoad: .success([]))
+        expect(sut, toLoad: .success([]))
     }
     
     func test_saveGames_deliversNoErrorOnEmptyRepository() {
@@ -59,5 +42,35 @@ private extension CoreDataGamesRepositoryTests {
         let sut = CoreDataGamesRepository(inMemory: true)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+    
+    func expect(
+        _ sut: CoreDataGamesRepository,
+        toLoad expectedResult: Result<[Game], Error>,
+        file: StaticString = #filePath, line: UInt = #line
+    ) {
+        let exp = expectation(description: "Wait for games retrieval")
+        var receivedGames: [Game]?
+        
+        sut.loadGames()
+            .sink { result in
+                switch (result, expectedResult) {
+                case let (.finished, .success(expectedGames)):
+                    XCTAssertEqual(receivedGames, expectedGames, file: file, line: line)
+                    
+                case (.failure, .failure):
+                    break
+                    
+                default:
+                    XCTFail("Expected to retrieve \(expectedResult), got \(result) instead", file: file, line: line)
+                }
+                
+                exp.fulfill()
+            } receiveValue: { games in
+                receivedGames = games
+            }
+            .store(in: &cancellables)
+        
+        wait(for: [exp], timeout: 1.0)
     }
 }
