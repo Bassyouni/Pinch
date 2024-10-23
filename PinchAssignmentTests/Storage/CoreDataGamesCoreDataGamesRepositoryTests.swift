@@ -13,10 +13,7 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
     var cancellables = Set<AnyCancellable>()
     
     func test_loadGames_hasNoSideEffectsOnEmptyRepository() {
-        let sut = makeSUT()
-        
-        expect(sut, toLoad: .success([]))
-        expect(sut, toLoad: .success([]))
+        expect(makeSUT(), toLoadTwice: .success([]))
     }
     
     func test_loadGames_deliversFoundValuesOnNonEmptyRepository() {
@@ -25,19 +22,9 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         
         save(games, to: sut)
         
-        expect(sut, toLoad: .success(games))
+        expect(sut, toLoadTwice: .success(games))
     }
-    
-    func test_loadGame_hasNoSideEffectsOnNonEmptyRepository() {
-        let sut = makeSUT()
-        let games = uniqueGames()
-        
-        save(games, to: sut)
-        
-        expect(sut, toLoad: .success(games))
-        expect(sut, toLoad: .success(games))
-    }
-    
+
     func test_saveGames_deliversNoErrorOnEmptyRepository() {
         let sut = makeSUT()
         
@@ -61,6 +48,15 @@ private extension CoreDataGamesRepositoryTests {
         let sut = CoreDataGamesRepository(inMemory: true)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+    
+    func expect(
+        _ sut: CoreDataGamesRepository,
+        toLoadTwice expectedResult: Result<[Game], Error>,
+        file: StaticString = #filePath, line: UInt = #line
+    ) {
+        expect(sut, toLoad: expectedResult, file: file, line: line)
+        expect(sut, toLoad: expectedResult, file: file, line: line)
     }
     
     func expect(
