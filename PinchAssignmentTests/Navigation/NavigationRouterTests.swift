@@ -19,24 +19,26 @@ final class NavigationRouterTests: XCTestCase {
     
     func test_push_addsNewViewToTheStack() {
         let sut = makeSUT()
+        let game = Game.uniqueStub()
         
-        sut.push(.gameDetails)
-        XCTAssertEqual(sut.stack, [.gameDetails])
+        sut.push(.gameDetails(game))
+        XCTAssertEqual(sut.stack, [.gameDetails(game)])
         
         sut.push(.gameList)
-        XCTAssertEqual(sut.stack, [.gameDetails, .gameList])
+        XCTAssertEqual(sut.stack, [.gameDetails(game), .gameList])
     }
     
     func test_pop_removeLastViewFromTheStack() {
         let sut = makeSUT()
-        sut.push(.gameDetails)
+        let game = Game.uniqueStub()
+        sut.push(.gameDetails(game))
         sut.push(.gameList)
         
         let firstRemovedRoute = sut.pop()
         let secondRemovedRoute = sut.pop()
         
         XCTAssertEqual(firstRemovedRoute, .gameList)
-        XCTAssertEqual(secondRemovedRoute, .gameDetails)
+        XCTAssertEqual(secondRemovedRoute, .gameDetails(game))
         XCTAssertEqual(sut.stack, [])
     }
 }
