@@ -21,4 +21,8 @@ extension XCTestCase {
     func uniqueGames() -> [Game] {
         return [.uniqueStub(), .uniqueStub()]
     }
+    
+    var anyError: Error {
+        NSError(domain: "Test", code: 1)
+    }
 }

@@ -86,7 +86,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
         let sut = makeSUT()
         
         expect(sut, toCompleteWith: .failure(.networkError), when: {
-            env.client.complete(with: NSError(domain: "test", code: 0))
+            env.client.complete(with: anyError)
         })
     }
     

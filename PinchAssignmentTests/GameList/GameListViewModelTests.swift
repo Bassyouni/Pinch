@@ -26,7 +26,7 @@ final class GameListViewModelTests: XCTestCase {
     func test_loadGames_onReceivingError_setsStateToErrorWithMessage() {
         let sut = makeSUT()
         
-        env.loaderSpy.complete(with: NSError(domain: "Test", code: 1))
+        env.loaderSpy.complete(with: anyError)
         
         let expectedErrorMessage = "Unable to load games"
         XCTAssertEqual(sut.gamesState, .error(message: expectedErrorMessage))

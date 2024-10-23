@@ -74,7 +74,7 @@ final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
         let games = uniqueGames()
         
         expect(sut, toCompleteWith: .success(games)) {
-            env.local.complete(with: NSError(domain: "test", code: 1))
+            env.local.complete(with: anyError)
             env.remote.complete(with: games)
         }
     }
