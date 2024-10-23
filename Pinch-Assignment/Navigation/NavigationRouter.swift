@@ -11,7 +11,7 @@ import Foundation
 final class NavigationRouter: ObservableObject {
     
     let root: NavigationRoute = .gameList
-    @Published private(set) var stack: [NavigationRoute] = []
+    @Published var stack: [NavigationRoute] = []
     
     func push(_ route: NavigationRoute) {
         stack.append(route)
