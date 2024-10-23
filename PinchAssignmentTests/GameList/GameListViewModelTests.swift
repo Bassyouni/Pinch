@@ -11,6 +11,7 @@ import Pinch_Assignment
 
 final class GameListViewModelTests: XCTestCase {
     private let env = Environment()
+    private var cancellables = Set<AnyCancellable>()
     
     func test_init_gamesStateIsLoadingByDefault() {
         XCTAssertEqual(makeSUT().gamesState, .loading)
@@ -68,6 +69,40 @@ final class GameListViewModelTests: XCTestCase {
         let expectedGames = games.map { Game(id: $0.id, name: $0.name, coverURL: URL(string: validSizeURL)!) }
         XCTAssertEqual(sut.gamesState, .loaded(expectedGames))
     }
+    
+    func test_refreshGames_loadsGamesAgainAndTerminatesOldPublisher() {
+        let sut = makeSUT()
+        let initialPublisherGames = [Game.uniqueStub(), .uniqueStub()]
+        let refreshPublisherGames = [Game.uniqueStub(), .uniqueStub()]
+        let newerRefreshPublisherGames = [Game.uniqueStub(), .uniqueStub()]
+        env.loaderSpy.send(games: initialPublisherGames, at: 0)
+
+        sut.refreshGames()
+            .sink(receiveCompletion: { _ in }, receiveValue: {})
+            .store(in: &cancellables)
+
+        env.loaderSpy.send(games: refreshPublisherGames, at: 1)
+        XCTAssertEqual(sut.gamesState, .loaded(refreshPublisherGames))
+        
+        env.loaderSpy.send(games: initialPublisherGames, at: 0)
+        XCTAssertEqual(sut.gamesState, .loaded(refreshPublisherGames), "Expected inital publisher to be terminated")
+        
+        env.loaderSpy.send(games: newerRefreshPublisherGames, at: 1)
+        XCTAssertEqual(sut.gamesState, .loaded(refreshPublisherGames + newerRefreshPublisherGames))
+    }
+    
+    func test_refreshGames_loadsGamesAgainAndNotifesCaller() {
+        let sut = makeSUT()
+        env.loaderSpy.send(games: [.uniqueStub()], at: 0)
+        let exp = expectation(description: "Expected refesh to be done")
+        
+        sut.refreshGames()
+            .sink(receiveCompletion: { _ in exp.fulfill() }, receiveValue: {})
+            .store(in: &cancellables)
+        env.loaderSpy.send(games: [.uniqueStub()], at: 1)
+
+        wait(for: [exp], timeout: 0.1)
+    }
 }
 
 private extension GameListViewModelTests {
@@ -94,7 +129,6 @@ private class GamesLoaderSpy: GamesLoader {
         loadGamesSubjects.append(subject)
         return subject.eraseToAnyPublisher()
     }
-    
     
     func finishLoadGamesWithError(at index: Int = 0) {
         loadGamesSubjects[index].send(completion: .failure(NSError(domain: "Test", code: 1)))

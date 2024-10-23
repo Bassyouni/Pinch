@@ -21,29 +21,50 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     @Published private(set) public var gamesState: ViewState<[Game]> = .loading
     
     private let gamesLoader: GamesLoader
-    private var cancellables = Set<AnyCancellable>()
+    private var loadGamesCancellable: AnyCancellable?
     
     public init(gamesLoader: GamesLoader) {
         self.gamesLoader = gamesLoader
-        loadGames()
+        loadGamesCancellable = loadGames()
     }
     
-    func loadGames() {
+    public func refreshGames() -> Future<Void, Error> {
+        return Future { [weak self] promise in
+            var temporaryCancellable: AnyCancellable?
+            
+            temporaryCancellable = self?.loadGames() { [weak self] result in
+                if case .success = result, temporaryCancellable != nil {
+                    self?.loadGamesCancellable?.cancel()
+                    self?.loadGamesCancellable = temporaryCancellable
+                    self?.gamesState = .loaded([])
+                }
+                
+                temporaryCancellable = nil
+                promise(.success(()))
+            }
+        }
+    }
+    
+    private func loadGames(completion: ((Result<Void, Error>) -> Void)? = nil) -> AnyCancellable {
         gamesLoader.loadGames()
             .map { Self.adjustCoverURLForGamesList($0) }
             .sink { [weak self] result in
-                if case .failure = result {
+                if case let .failure(error) = result {
+                    completion?(.failure(error))
                     self?.gamesState = .error(message: "Unable to load games")
                 }
-            } receiveValue: { [weak self] receivedGames in
-                switch self?.gamesState {
-                case let .loaded(oldGames):
-                    self?.gamesState = .loaded(oldGames + receivedGames)
-                default:
-                    self?.gamesState = .loaded(receivedGames)
-                }
+            } receiveValue: { [weak self] games in
+                completion?(.success(()))
+                self?.proccessNew(games: games)
             }
-            .store(in: &cancellables)
+    }
+    
+    private func proccessNew(games: [Game]) {
+        if case let .loaded(oldGames) = gamesState {
+            gamesState = .loaded(oldGames + games)
+        } else {
+            gamesState = .loaded(games)
+        }
     }
     
     private static func adjustCoverURLForGamesList(_ games: [Game]) -> [Game] {
