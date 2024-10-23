@@ -40,16 +40,20 @@ extension CoreDataGamesRepository: GamesLoader {
             self?.queue.async { [weak self] in
                 guard let self else { return }
                 
-                do {
-                    let request = GameEntity.fetchRequest()
-                    let games = try self.context.fetch(request).map { $0.game }
-                    promise(.success(games))
-                } catch {
-                    promise(.failure(error))
-                }
+                promise(self.fetchGames())
             }
         }
         .eraseToAnyPublisher()
+    }
+    
+    private func fetchGames() -> Result<[Game], Error> {
+        do {
+            let request = GameEntity.fetchRequest()
+            let games = try self.context.fetch(request).map { $0.game }
+            return .success(games)
+        } catch {
+            return .failure(error)
+        }
     }
 }
 
