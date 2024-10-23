@@ -13,10 +13,6 @@ public protocol GameListDisplayLogic: ObservableObject {
     func refreshGames() -> Future<Void, Error>
 }
 
-public protocol GamesLoader {
-    func loadGames() -> AnyPublisher<[Game], Error>
-}
-
 public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     
     @Published private(set) public var gamesState: ViewState<[Game]> = .loading
