@@ -18,29 +18,33 @@ public final class LocalWithRemoteFallbackGamesLoader: GamesLoader {
     }
     
     public func loadGames() -> AnyPublisher<[Game], Error> {
-        let store = self.store
-        let remote = self.remote
-        var cancellables = self.cancellables
+        let loadFromRemote = self.loadFromRemoteAndSaveToStore
         
         return store.loadGames()
-            .catch({ _ in
-                remote.loadGames()
-            })
+            .catch { _ in loadFromRemote() }
             .flatMap { games in
-                if !games.isEmpty {
-                    return Just(games)
-                        .setFailureType(to: Error.self)
-                        .eraseToAnyPublisher()
+                if games.isEmpty {
+                    return loadFromRemote()
                 }
                 
-                return remote.loadGames()
-                    .handleEvents(receiveOutput:  { games in
-                        store.saveGames(games)
-                            .sink { _ in } receiveValue: { _ in }
-                            .store(in: &cancellables)
-                    })
+                return Just(games)
+                    .setFailureType(to: Error.self)
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
+    }
+    
+    private func loadFromRemoteAndSaveToStore() -> AnyPublisher<[Game], Error> {
+        remote.loadGames()
+            .handleEvents(receiveOutput: { [weak self] games in
+                self?.saveGames(games)
+            })
+            .eraseToAnyPublisher()
+    }
+    
+    private func saveGames(_ games: [Game]) {
+        store.saveGames(games)
+            .sink { _ in } receiveValue: { _ in }
+            .store(in: &cancellables)
     }
 }
