@@ -33,6 +33,7 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
             }
         }
         .navigationTitle("Top Games")
+        .task { viewModel.loadGames() }
     }
     
     private func gameCell(_ game: Game) -> some View {
@@ -90,4 +91,5 @@ private class DisplayLogic: GameListDisplayLogic {
     
     func refreshGames() -> Future<Void, Error> { .init { _ in } }
     func didSelectGame(_ game: Game) {}
+    func loadGames() {}
 }

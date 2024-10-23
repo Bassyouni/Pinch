@@ -12,6 +12,7 @@ public protocol GameListDisplayLogic: ObservableObject {
     var gamesState: ViewState<[Game]> { get }
     func refreshGames() -> Future<Void, Error>
     func didSelectGame(_ game: Game)
+    func loadGames()
 }
 
 public enum GameListViewTransition: Equatable {
@@ -20,7 +21,7 @@ public enum GameListViewTransition: Equatable {
 
 public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     
-    @Published private(set) public var gamesState: ViewState<[Game]> = .loading
+    @Published private(set) public var gamesState: ViewState<[Game]> = .loaded([])
     
     private let gamesLoader: GamesLoader
     private var loadGamesCancellable: AnyCancellable?
@@ -29,6 +30,10 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     public init(gamesLoader: GamesLoader, coordinate: @escaping (GameListViewTransition) -> Void) {
         self.gamesLoader = gamesLoader
         self.coordinate = coordinate
+    }
+    
+    public func loadGames() {
+        gamesState = .loading
         loadGamesCancellable = loadGames()
     }
     

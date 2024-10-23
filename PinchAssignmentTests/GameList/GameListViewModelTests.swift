@@ -13,12 +13,20 @@ final class GameListViewModelTests: XCTestCase {
     private let env = Environment()
     private var cancellables = Set<AnyCancellable>()
     
-    func test_init_gamesStateIsLoadingByDefault() {
-        XCTAssertEqual(makeSUT().gamesState, .loading)
+    func test_init_gamesStateIsloadedWithEmptyDataByDefault() {
+        XCTAssertEqual(makeSUT().gamesState, .loaded([]))
     }
     
-    func test_init_startsLoadingGames() {
+    func test_init_doesNoting() {
         _ = makeSUT()
+        
+        XCTAssertEqual(env.loaderSpy.loadGamesCallCount, 0)
+    }
+    
+    func test_loadGames_doesNoting() {
+        let sut = makeSUT()
+        
+        sut.loadGames()
         
         XCTAssertEqual(env.loaderSpy.loadGamesCallCount, 1)
     }
@@ -26,6 +34,7 @@ final class GameListViewModelTests: XCTestCase {
     func test_loadGames_onReceivingError_setsStateToErrorWithMessage() {
         let sut = makeSUT()
         
+        sut.loadGames()
         env.loaderSpy.complete(with: anyError)
         
         let expectedErrorMessage = "Unable to load games"
@@ -34,8 +43,9 @@ final class GameListViewModelTests: XCTestCase {
     
     func test_loadGames_onReceivingNewGames_setsStateToLoadedWithNewGamesAppendedToWhatWasAlreadyThere() {
         let sut = makeSUT()
-        
         let initalGames = [Game.uniqueStub(), .uniqueStub()]
+        
+        sut.loadGames()
         env.loaderSpy.send(games: initalGames)
         XCTAssertEqual(sut.gamesState, .loaded(initalGames))
         
@@ -50,6 +60,7 @@ final class GameListViewModelTests: XCTestCase {
         let urlWithPrefix = "https://www.url.com"
         let games = [Game.uniqueStub(url: urlWithNoPrefix), .uniqueStub(url: urlWithPrefix)]
         
+        sut.loadGames()
         env.loaderSpy.send(games: games)
         
         let expectedGames = games.map { Game(id: $0.id, name: $0.name, coverURL: URL(string: urlWithPrefix)!) }
@@ -64,6 +75,7 @@ final class GameListViewModelTests: XCTestCase {
         
         let games = [Game.uniqueStub(url: otherSizeURL1), .uniqueStub(url: otherSizeURL2)]
         
+        sut.loadGames()
         env.loaderSpy.send(games: games)
         
         let expectedGames = games.map { Game(id: $0.id, name: $0.name, coverURL: URL(string: validSizeURL)!) }
@@ -75,6 +87,7 @@ final class GameListViewModelTests: XCTestCase {
         let initialPublisherGames = [Game.uniqueStub(), .uniqueStub()]
         let refreshPublisherGames = [Game.uniqueStub(), .uniqueStub()]
         let newerRefreshPublisherGames = [Game.uniqueStub(), .uniqueStub()]
+        sut.loadGames()
         env.loaderSpy.send(games: initialPublisherGames, at: 0)
 
         sut.refreshGames()
@@ -93,6 +106,7 @@ final class GameListViewModelTests: XCTestCase {
     
     func test_refreshGames_loadsGamesAgainAndNotifesCaller() {
         let sut = makeSUT()
+        sut.loadGames()
         env.loaderSpy.send(games: [.uniqueStub()], at: 0)
         let exp = expectation(description: "Expected refesh to be done")
         
