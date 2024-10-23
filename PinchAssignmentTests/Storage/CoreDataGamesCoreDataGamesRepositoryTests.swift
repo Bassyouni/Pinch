@@ -35,6 +35,23 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         
         wait(for: [exp], timeout: 1.0)
     }
+    
+    func test_saveGames_deliversNoErrorOnEmptyRepository() {
+        let sut = makeSUT()
+        
+        let exp = expectation(description: "Wait for games saving")
+        
+        sut.saveGames([Game.uniqueStub()]).sink { result in
+            if case .failure = result {
+                XCTFail("Expected not fail inserting games")
+            }
+            exp.fulfill()
+        } receiveValue: { _ in }
+        .store(in: &cancellables)
+
+        
+        wait(for: [exp], timeout: 1.0)
+    }
 }
 
 private extension CoreDataGamesRepositoryTests {

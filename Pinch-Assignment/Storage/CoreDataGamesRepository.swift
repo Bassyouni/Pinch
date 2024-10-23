@@ -40,3 +40,9 @@ extension CoreDataGamesRepository: GamesLoader {
             .eraseToAnyPublisher()
     }
 }
+
+extension CoreDataGamesRepository: GamesSaver {
+    public func saveGames(_ games: [Game]) -> AnyPublisher<Void, Error> {
+        Empty().eraseToAnyPublisher()
+    }
+}
