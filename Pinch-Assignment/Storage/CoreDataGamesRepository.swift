@@ -15,10 +15,21 @@ private class GameEntity: NSManagedObject {
     @NSManaged var coverURL: String
     @NSManaged var sortIndex: Int32
     
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<GameEntity> {
+    @nonobjc class func fetchRequest() -> NSFetchRequest<GameEntity> {
         let request = NSFetchRequest<GameEntity>(entityName: .init(describing: GameEntity.self))
         request.sortDescriptors = [NSSortDescriptor(key: #keyPath(GameEntity.sortIndex), ascending: true)]
         return request
+    }
+    
+    func setProtperties(to game: Game, sortIndex: Int32) {
+        id = game.id
+        name = game.name
+        coverURL = game.coverURL.absoluteString
+        self.sortIndex = sortIndex
+    }
+    
+    var game: Game {
+        Game(id: id, name: name, coverURL: URL(string: coverURL)!)
     }
 }
 
@@ -55,15 +66,8 @@ extension CoreDataGamesRepository: GamesLoader {
             
             do {
                 let request = GameEntity.fetchRequest()
-                let games = try self.context.fetch(request)
-                let models = games.map { game in
-                    Game(
-                        id: game.id,
-                        name: game.name,
-                        coverURL: URL(string: game.coverURL)!
-                    )
-                }
-                promise(.success(models))
+                let games = try self.context.fetch(request).map { $0.game }
+                promise(.success(games))
             } catch {
                 promise(.failure(error))
             }
@@ -75,28 +79,27 @@ extension CoreDataGamesRepository: GamesLoader {
 extension CoreDataGamesRepository: GamesSaver {
     public func saveGames(_ games: [Game]) -> AnyPublisher<Void, Error> {
         Future { [weak self] promise in
-            guard let self else { return }
-            
             do {
-                let request = GameEntity.fetchRequest()
-                request.fetchLimit = 1
-                let maxSortIndex = try self.context.fetch(request).first?.sortIndex ?? -1
-                
-                for (index, game) in games.enumerated() {
-                    let managedGame = GameEntity(context: self.context)
-                    managedGame.id = game.id
-                    managedGame.name = game.name
-                    managedGame.coverURL = game.coverURL.absoluteString
-                    managedGame.sortIndex = maxSortIndex + Int32(index + 1)
-                }
-                
-                try self.context.save()
+                try self?._saveGames(games)
                 promise(.success(()))
-                
             } catch {
                 promise(.failure(error))
             }
         }
         .eraseToAnyPublisher()
+    }
+    
+    private func _saveGames(_ games: [Game]) throws {
+        let request = GameEntity.fetchRequest()
+        request.fetchLimit = 1
+        let maxSortIndex = try self.context.fetch(request).first?.sortIndex ?? -1
+        
+        for (index, game) in games.enumerated() {
+            let managedGame = GameEntity(context: self.context)
+            let sortIndex = maxSortIndex + Int32(index + 1)
+            managedGame.setProtperties(to: game, sortIndex: sortIndex)
+        }
+        
+        try self.context.save()
     }
 }
