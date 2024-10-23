@@ -1,5 +1,5 @@
 //
-//  CoreDataGamesRepositoryTests.swift
+//  CoreDataGamesStoreTests.swift
 //  Pinch-Assignment
 //
 //  Created by Omar Bassyouni on 23/10/2024.
@@ -9,14 +9,14 @@ import XCTest
 import Combine
 import Pinch_Assignment
 
-final class CoreDataGamesRepositoryTests: XCTestCase {
+final class CoreDataGamesStoreTests: XCTestCase {
     var cancellables = Set<AnyCancellable>()
     
-    func test_loadGames_hasNoSideEffectsOnEmptyRepository() {
+    func test_loadGames_hasNoSideEffectsOnEmptyStore() {
         expect(makeSUT(), toLoadTwice: .success([]))
     }
     
-    func test_loadGames_deliversFoundValuesOnNonEmptyRepository() {
+    func test_loadGames_deliversFoundValuesOnNonEmptyStore() {
         let sut = makeSUT()
         let games = uniqueGames()
         
@@ -25,7 +25,7 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         expect(sut, toLoadTwice: .success(games))
     }
 
-    func test_saveGames_deliversNoErrorOnEmptyRepository() {
+    func test_saveGames_deliversNoErrorOnEmptyStore() {
         let sut = makeSUT()
         
         let savingError = save(uniqueGames(), to: sut)
@@ -33,7 +33,7 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         XCTAssertNil(savingError, "Expected to save games successfully")
     }
     
-    func test_saveGames_deliversNoErrorOnNonEmptyRepository() {
+    func test_saveGames_deliversNoErrorOnNonEmptyStore() {
         let sut = makeSUT()
         save(uniqueGames(), to: sut)
         
@@ -42,7 +42,7 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         XCTAssertNil(savingError, "Expected to append games successfully")
     }
     
-    func test_saveGames_appendsToPreviouslyInsertedRepositoryValues() {
+    func test_saveGames_appendsToPreviouslyInsertedStoreValues() {
         let sut = makeSUT()
         let firstGames = uniqueGames()
         save(firstGames, to: sut)
@@ -53,7 +53,7 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         expect(sut, toLoad: .success(firstGames + latestGames))
     }
     
-    func test_repository_shouldRunSerially() {
+    func test_store_shouldRunSerially() {
         let sut = makeSUT()
         var completedOperationsInOrder = [XCTestExpectation]()
         
@@ -79,15 +79,15 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
     }
 }
 
-private extension CoreDataGamesRepositoryTests {
-    func makeSUT(file: StaticString = #file, line: UInt = #line) -> CoreDataGamesRepository {
-        let sut = CoreDataGamesRepository(inMemory: true)
+private extension CoreDataGamesStoreTests {
+    func makeSUT(file: StaticString = #file, line: UInt = #line) -> CoreDataGamesStore {
+        let sut = CoreDataGamesStore(inMemory: true)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
     
     func expect(
-        _ sut: CoreDataGamesRepository,
+        _ sut: CoreDataGamesStore,
         toLoadTwice expectedResult: Result<[Game], Error>,
         file: StaticString = #filePath, line: UInt = #line
     ) {
@@ -96,7 +96,7 @@ private extension CoreDataGamesRepositoryTests {
     }
     
     func expect(
-        _ sut: CoreDataGamesRepository,
+        _ sut: CoreDataGamesStore,
         toLoad expectedResult: Result<[Game], Error>,
         file: StaticString = #filePath, line: UInt = #line
     ) {
@@ -126,16 +126,17 @@ private extension CoreDataGamesRepositoryTests {
     }
     
     @discardableResult
-    func save(_ games: [Game], to sut: CoreDataGamesRepository) -> Error? {
+    func save(_ games: [Game], to sut: CoreDataGamesStore) -> Error? {
         let exp = expectation(description: "Wait for games saving")
         var savingError: Error?
         
-        sut.saveGames(games).sink { result in
-            if case let .failure(error) = result {
-                savingError = error
-            }
-            exp.fulfill()
-        } receiveValue: { _ in }
+        sut.saveGames(games)
+            .sink { result in
+                if case let .failure(error) = result {
+                    savingError = error
+                }
+                exp.fulfill()
+            } receiveValue: { _ in }
             .store(in: &cancellables)
         
         

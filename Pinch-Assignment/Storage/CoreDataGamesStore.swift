@@ -1,5 +1,5 @@
 //
-//  CoreDataGamesRepository.swift
+//  CoreDataGamesStore.swift
 //  Pinch-Assignment
 //
 //  Created by Omar Bassyouni on 23/10/2024.
@@ -8,7 +8,7 @@
 import Combine
 import CoreData
 
-public final class CoreDataGamesRepository {
+public final class CoreDataGamesStore {
     
     private let container: NSPersistentContainer
     private let context: NSManagedObjectContext
@@ -34,7 +34,7 @@ public final class CoreDataGamesRepository {
     }
 }
 
-extension CoreDataGamesRepository: GamesLoader {
+extension CoreDataGamesStore: GamesLoader {
     public func loadGames() -> AnyPublisher<[Game], Error> {
         Future { [weak self] promise in
             self?.queue.async { [weak self] in
@@ -57,7 +57,7 @@ extension CoreDataGamesRepository: GamesLoader {
     }
 }
 
-extension CoreDataGamesRepository: GamesSaver {
+extension CoreDataGamesStore: GamesSaver {
     public func saveGames(_ games: [Game]) -> AnyPublisher<Void, Error> {
         Future { [weak self] promise in
             self?.queue.async { [weak self] in
