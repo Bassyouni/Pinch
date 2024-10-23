@@ -18,9 +18,13 @@ public final class LocalWithRemoteFallbackGamesLoader: GamesLoader {
     }
     
     public func loadGames() -> AnyPublisher<[Game], Error> {
-        return self.store.loadGames()
+        let store = self.store
+        let remote = self.remote
+        var cancellables = self.cancellables
+        
+        return store.loadGames()
             .catch({ _ in
-                self.remote.loadGames()
+                remote.loadGames()
             })
             .flatMap { games in
                 if !games.isEmpty {
@@ -29,11 +33,11 @@ public final class LocalWithRemoteFallbackGamesLoader: GamesLoader {
                         .eraseToAnyPublisher()
                 }
                 
-                return self.remote.loadGames()
+                return remote.loadGames()
                     .handleEvents(receiveOutput:  { games in
-                        self.store.saveGames(games)
+                        store.saveGames(games)
                             .sink { _ in } receiveValue: { _ in }
-                            .store(in: &self.cancellables)
+                            .store(in: &cancellables)
                     })
                     .eraseToAnyPublisher()
             }
