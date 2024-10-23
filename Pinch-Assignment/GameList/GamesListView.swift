@@ -21,9 +21,7 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
                 
             case .loaded(let games):
                 List(games, id: \.id) { gameCell($0) }
-                    .refreshable {
-                        await refreshGames()
-                    }
+                    .refreshable { await refreshGames() }
                 
             case .error(let errorMessage):
                 Text(errorMessage)
