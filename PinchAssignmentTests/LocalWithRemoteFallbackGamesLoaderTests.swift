@@ -29,6 +29,16 @@ final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
         XCTAssertEqual(env.local.loadGamesCallCount, 1)
         XCTAssertEqual(env.remote.loadGamesCallCount, 0)
     }
+    
+    func test_loadGames_onEmptyLocalData_loadsFromRemote() {
+        let sut = makeSUT()
+        let games = [Game.uniqueStub(), .uniqueStub()]
+        
+        expect(sut, toCompleteWith: .success(games)) {
+            env.local.complete(with: [])
+            env.remote.complete(with: games)
+        }
+    }
 }
 
 private extension LocalWithRemoteFallbackGamesLoaderTests {
@@ -42,6 +52,47 @@ private extension LocalWithRemoteFallbackGamesLoaderTests {
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
+    
+    func expect(
+            _ sut: LocalWithRemoteFallbackGamesLoader,
+            toCompleteWith expectedResult: Result<[Game], Error>,
+            when action: () -> Void,
+            file: StaticString = #filePath,
+            line: UInt = #line
+        ) {
+            let exp = expectation(description: "Wait for load completion")
+            var receivedResult: Result<[Game], Error>?
+            
+            sut.loadGames().sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .finished: break
+                    case .failure(let error):
+                        receivedResult = .failure(error)
+                    }
+                    exp.fulfill()
+                },
+                receiveValue: { games in
+                    receivedResult = .success(games)
+                }
+            ).store(in: &cancellables)
+            
+            action()
+            
+            wait(for: [exp], timeout: 1.0)
+            
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedGames), .success(expectedGames)):
+                XCTAssertEqual(receivedGames, expectedGames, file: file, line: line)
+                
+            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+                
+            default:
+                XCTFail("Expected result \(expectedResult), got \(String(describing: receivedResult)) instead", file: file, line: line)
+            }
+        }
+
 }
 
 private class GamesStoreSpy: GamesLoaderSpy, GamesSaver {
