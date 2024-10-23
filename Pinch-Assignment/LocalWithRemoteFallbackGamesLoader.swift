@@ -10,6 +10,7 @@ import Combine
 public final class LocalWithRemoteFallbackGamesLoader: GamesLoader {
     private let store: GamesLoader & GamesSaver
     private let remote: GamesLoader
+    private var cancellables = Set<AnyCancellable>()
     
     public init(store: GamesLoader & GamesSaver, remote: GamesLoader) {
         self.store = store
@@ -20,6 +21,12 @@ public final class LocalWithRemoteFallbackGamesLoader: GamesLoader {
         return self.store.loadGames()
             .flatMap { _ in
                 self.remote.loadGames()
+                    .handleEvents(receiveOutput:  { games in
+                        self.store.saveGames(games)
+                            .sink { _ in } receiveValue: { _ in }
+                            .store(in: &self.cancellables)
+                    })
+                    .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }

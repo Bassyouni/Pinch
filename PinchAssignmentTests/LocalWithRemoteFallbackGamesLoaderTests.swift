@@ -39,6 +39,17 @@ final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
             env.remote.complete(with: games)
         }
     }
+    
+    func test_loadGames_onEmptyLocalData_loadsFromRemoteAndSavesToLocal() {
+        let sut = makeSUT()
+        let games = uniqueGames()
+        
+        sut.loadGames().sink(receiveCompletion: { _ in }, receiveValue: { _ in }).store(in: &cancellables)
+        env.local.complete(with: [])
+        env.remote.complete(with: games)
+        
+        XCTAssertEqual(env.local.savedGames, [games])
+    }
 }
 
 private extension LocalWithRemoteFallbackGamesLoaderTests {
