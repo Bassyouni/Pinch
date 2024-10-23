@@ -19,17 +19,15 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
             case .loading:
                 ProgressView()
                 
-            case .loaded(let games):
+            case let .loaded(games):
                 List(games, id: \.id) { game in
                     gameCell(game)
                         .onTapGesture { viewModel.didSelectGame(game)  }
                 }
                 .refreshable { await refreshGames() }
                 
-            case .error(let errorMessage):
-                Text(errorMessage)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.red)
+            case let .error(errorMessage):
+                errorView(errorMessage)
             }
         }
         .navigationTitle("Top Games")
@@ -50,6 +48,27 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
             Text(game.name)
                 .font(.title2)
                 .bold()
+        }
+    }
+    
+    @ViewBuilder
+    private func errorView(_ message: String) -> some View {
+        Text(message)
+            .multilineTextAlignment(.center)
+            .foregroundColor(.red)
+            .padding()
+        
+        Button {
+            viewModel.loadGames()
+        } label: {
+            Text("Try again")
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.indigo)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+                .padding(.horizontal, 50)
         }
     }
     
