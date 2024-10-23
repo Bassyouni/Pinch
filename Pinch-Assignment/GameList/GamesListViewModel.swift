@@ -10,6 +10,7 @@ import Foundation
 
 public protocol GameListDisplayLogic: ObservableObject {
     var gamesState: ViewState<[Game]> { get }
+    func refreshGames() -> Future<Void, Error>
 }
 
 public protocol GamesLoader {

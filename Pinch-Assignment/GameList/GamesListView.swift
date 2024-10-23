@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import Combine
 
 struct GamesListView<ViewModel: GameListDisplayLogic> : View {
     
     @ObservedObject var viewModel: ViewModel
+    @State private var cancellables = Set<AnyCancellable>()
     
     var body: some View {
         VStack {
@@ -19,6 +21,9 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
                 
             case .loaded(let games):
                 List(games, id: \.id) { gameCell($0) }
+                    .refreshable {
+                        await refreshGames()
+                    }
                 
             case .error(let errorMessage):
                 Text(errorMessage)
@@ -29,7 +34,7 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
         .navigationTitle("Top Games")
     }
     
-    func gameCell(_ game: Game) -> some View {
+    private func gameCell(_ game: Game) -> some View {
         HStack(alignment: .center) {
             AsyncImage(url: game.coverURL) { image in
                 image
@@ -43,6 +48,14 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
             Text(game.name)
                 .font(.title2)
                 .bold()
+        }
+    }
+    
+    private func refreshGames() async {
+        return await withCheckedContinuation { continuation in
+            viewModel.refreshGames()
+                .sink(receiveCompletion: { _ in continuation.resume() }, receiveValue: {})
+                .store(in: &cancellables)
         }
     }
 }
@@ -73,4 +86,6 @@ private class DisplayLogic: GameListDisplayLogic {
     init(games: ViewState<[Game]>) {
         self.gamesState = games
     }
+    
+    func refreshGames() -> Future<Void, Error> { .init { _ in} }
 }
