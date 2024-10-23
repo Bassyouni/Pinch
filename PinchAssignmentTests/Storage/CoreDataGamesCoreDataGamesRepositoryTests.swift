@@ -52,6 +52,31 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         
         expect(sut, toLoad: .success(firstGames + latestGames))
     }
+    
+    func test_repository_shouldRunSerially() {
+        let sut = makeSUT()
+        var completedOperationsInOrder = [XCTestExpectation]()
+        
+        let op1 = expectation(description: "Operation 1")
+        sut.saveGames(uniqueGames())
+            .sink(receiveCompletion: { _ in
+                completedOperationsInOrder.append(op1)
+                op1.fulfill()
+            }, receiveValue: {})
+            .store(in: &cancellables)
+        
+        let op2 = expectation(description: "Operation 2")
+        sut.saveGames(uniqueGames())
+            .sink(receiveCompletion: { _ in
+                completedOperationsInOrder.append(op2)
+                op2.fulfill()
+            }, receiveValue: {})
+            .store(in: &cancellables)
+        
+        waitForExpectations(timeout: 5.0)
+        
+        XCTAssertEqual(completedOperationsInOrder, [op1, op2], "Expected side-effects to run serially but operations finished in the wrong order")
+    }
 }
 
 private extension CoreDataGamesRepositoryTests {

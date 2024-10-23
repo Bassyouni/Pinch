@@ -33,11 +33,11 @@ private class GameEntity: NSManagedObject {
     }
 }
 
-
 public final class CoreDataGamesRepository {
     
     private let container: NSPersistentContainer
     private let context: NSManagedObjectContext
+    private let queue = DispatchQueue(label: "CoreDataGameStore", qos: .userInitiated)
     
     public init(inMemory: Bool = false) {
         let container = NSPersistentContainer(name: "GamesStore")
@@ -62,14 +62,16 @@ public final class CoreDataGamesRepository {
 extension CoreDataGamesRepository: GamesLoader {
     public func loadGames() -> AnyPublisher<[Game], Error> {
         Future { [weak self] promise in
-            guard let self else { return }
-            
-            do {
-                let request = GameEntity.fetchRequest()
-                let games = try self.context.fetch(request).map { $0.game }
-                promise(.success(games))
-            } catch {
-                promise(.failure(error))
+            self?.queue.async { [weak self] in
+                guard let self else { return }
+                
+                do {
+                    let request = GameEntity.fetchRequest()
+                    let games = try self.context.fetch(request).map { $0.game }
+                    promise(.success(games))
+                } catch {
+                    promise(.failure(error))
+                }
             }
         }
         .eraseToAnyPublisher()
@@ -79,11 +81,13 @@ extension CoreDataGamesRepository: GamesLoader {
 extension CoreDataGamesRepository: GamesSaver {
     public func saveGames(_ games: [Game]) -> AnyPublisher<Void, Error> {
         Future { [weak self] promise in
-            do {
-                try self?._saveGames(games)
-                promise(.success(()))
-            } catch {
-                promise(.failure(error))
+            self?.queue.async { [weak self] in
+                do {
+                    try self?._saveGames(games)
+                    promise(.success(()))
+                } catch {
+                    promise(.failure(error))
+                }
             }
         }
         .eraseToAnyPublisher()
