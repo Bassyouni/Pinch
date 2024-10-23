@@ -50,6 +50,25 @@ final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
         
         XCTAssertEqual(env.local.savedGames, [games])
     }
+    
+    func test_loadGames_onNonEmptyLocalData_doesNotLoadFromRemote() {
+        let sut = makeSUT()
+        
+        sut.loadGames().sink(receiveCompletion: { _ in }, receiveValue: { _ in }).store(in: &cancellables)
+        env.local.complete(with: uniqueGames())
+        
+        XCTAssertEqual(env.remote.loadGamesCallCount, 0)
+    }
+    
+    func test_loadGames_onNonEmptyLocalData_loadsFromLocal() {
+        let sut = makeSUT()
+        let localGames = uniqueGames()
+        
+        expect(sut, toCompleteWith: .success(localGames)) {
+            env.local.complete(with: localGames)
+        }
+    }
+        
 }
 
 private extension LocalWithRemoteFallbackGamesLoaderTests {
