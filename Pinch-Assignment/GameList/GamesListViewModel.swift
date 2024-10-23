@@ -11,6 +11,11 @@ import Foundation
 public protocol GameListDisplayLogic: ObservableObject {
     var gamesState: ViewState<[Game]> { get }
     func refreshGames() -> Future<Void, Error>
+    func didSelectGame(_ game: Game)
+}
+
+public enum GameListViewTransition: Equatable {
+    case gameDetails(Game)
 }
 
 public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
@@ -19,9 +24,11 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     
     private let gamesLoader: GamesLoader
     private var loadGamesCancellable: AnyCancellable?
+    private let coordinate: (GameListViewTransition) -> Void
     
-    public init(gamesLoader: GamesLoader) {
+    public init(gamesLoader: GamesLoader, coordinate: @escaping (GameListViewTransition) -> Void) {
         self.gamesLoader = gamesLoader
+        self.coordinate = coordinate
         loadGamesCancellable = loadGames()
     }
     
@@ -42,6 +49,12 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
         }
     }
     
+    public func didSelectGame(_ game: Game) {
+        coordinate(.gameDetails(game))
+    }
+}
+
+extension GameListViewModel {
     private func loadGames(completion: ((Result<Void, Error>) -> Void)? = nil) -> AnyCancellable {
         gamesLoader.loadGames()
             .map { Self.adjustCoverURLForGamesList($0) }

@@ -31,7 +31,7 @@ struct Pinch_AssignmentApp: App {
         let remoteLoader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
         let store = CoreDataGamesStore()
         let gamesLoader = LocalWithRemoteFallbackGamesLoader(store: store, remote: remoteLoader)
-        let viewModel = GameListViewModel(gamesLoader: MainQueueDispatchDecorator(gamesLoader))
+        let viewModel = GameListViewModel(gamesLoader: MainQueueDispatchDecorator(gamesLoader), coordinate: { _ in })
         
         return GamesListView(viewModel: viewModel)
     }

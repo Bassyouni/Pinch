@@ -85,5 +85,6 @@ private class DisplayLogic: GameListDisplayLogic {
         self.gamesState = games
     }
     
-    func refreshGames() -> Future<Void, Error> { .init { _ in} }
+    func refreshGames() -> Future<Void, Error> { .init { _ in } }
+    func didSelectGame(_ game: Game) {}
 }

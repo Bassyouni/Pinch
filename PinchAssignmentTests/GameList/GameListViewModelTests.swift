@@ -103,16 +103,35 @@ final class GameListViewModelTests: XCTestCase {
 
         wait(for: [exp], timeout: 0.1)
     }
+    
+    func test_didSelectGame_coordinateToGameDetails() {
+        let sut = makeSUT()
+        let game1 = Game.uniqueStub()
+        let game2 = Game.uniqueStub()
+        
+        sut.didSelectGame(game1)
+        sut.didSelectGame(game2)
+        
+        XCTAssertEqual(env.coordinate.directions, [.gameDetails(game1), .gameDetails(game2)])
+    }
 }
 
 private extension GameListViewModelTests {
     struct Environment {
         let loaderSpy = GamesLoaderSpy()
+        let coordinate = CoordinateSpy()
     }
     
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> GameListViewModel {
-        let sut = GameListViewModel(gamesLoader: env.loaderSpy)
+        let sut = GameListViewModel(gamesLoader: env.loaderSpy, coordinate: env.coordinate.closure)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
+}
+
+final class CoordinateSpy {
+    var directions: [GameListViewTransition] = []
+    private(set) lazy var closure: (GameListViewTransition) -> Void = {
+        { self.directions.append($0) }
+    }()
 }
