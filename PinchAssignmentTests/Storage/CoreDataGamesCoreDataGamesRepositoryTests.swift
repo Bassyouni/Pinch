@@ -26,6 +26,15 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         
         XCTAssertNil(savingError, "Expected to save games successfully")
     }
+    
+    func test_saveGames_deliversNoErrorOnNonEmptyRepository() {
+        let sut = makeSUT()
+        _ = save([Game.uniqueStub(), .uniqueStub()], to: sut)
+        
+        let savingError = save([Game.uniqueStub(), .uniqueStub()], to: sut)
+        
+        XCTAssertNil(savingError, "Expected to append games successfully")
+    }
 }
 
 private extension CoreDataGamesRepositoryTests {
