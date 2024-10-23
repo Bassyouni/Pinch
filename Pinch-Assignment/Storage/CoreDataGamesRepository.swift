@@ -74,12 +74,12 @@ extension CoreDataGamesRepository: GamesSaver {
     
     private func _saveGames(_ games: [Game]) throws {
         let request = GameEntity.fetchRequest()
-        request.fetchLimit = 1
-        let maxSortIndex = try self.context.fetch(request).first?.sortIndex ?? -1
+        let existingGames = try self.context.fetch(request)
+        let nextSortIndex = Int32(existingGames.count)
         
         for (index, game) in games.enumerated() {
             let managedGame = GameEntity(context: self.context)
-            let sortIndex = maxSortIndex + Int32(index + 1)
+            let sortIndex = nextSortIndex + Int32(index)
             managedGame.setProtperties(to: game, sortIndex: sortIndex)
         }
         
