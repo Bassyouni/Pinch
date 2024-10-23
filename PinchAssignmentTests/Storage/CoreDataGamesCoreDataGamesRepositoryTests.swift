@@ -19,6 +19,15 @@ final class CoreDataGamesRepositoryTests: XCTestCase {
         expect(sut, toLoad: .success([]))
     }
     
+    func test_loadGames_deliversFoundValuesOnNonEmptyRepository() {
+        let sut = makeSUT()
+        let games = uniqueGames()
+        
+        save(games, to: sut)
+        
+        expect(sut, toLoad: .success(games))
+    }
+    
     func test_saveGames_deliversNoErrorOnEmptyRepository() {
         let sut = makeSUT()
         

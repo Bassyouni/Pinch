@@ -8,6 +8,21 @@
 import Combine
 import CoreData
 
+@objc(GameEntity)
+private class GameEntity: NSManagedObject {
+    @NSManaged var id: String
+    @NSManaged var name: String
+    @NSManaged var coverURL: String
+    @NSManaged var sortIndex: Int32
+    
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<GameEntity> {
+        let request = NSFetchRequest<GameEntity>(entityName: .init(describing: GameEntity.self))
+        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(GameEntity.sortIndex), ascending: true)]
+        return request
+    }
+}
+
+
 public final class CoreDataGamesRepository {
     
     private let container: NSPersistentContainer
@@ -35,14 +50,49 @@ public final class CoreDataGamesRepository {
 
 extension CoreDataGamesRepository: GamesLoader {
     public func loadGames() -> AnyPublisher<[Game], Error> {
-        return Just([])
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
+        Future { [weak self] promise in
+            guard let self else { return }
+            
+            do {
+                let request = GameEntity.fetchRequest()
+                let games = try self.context.fetch(request)
+                let models = games.map { game in
+                    Game(
+                        id: game.id,
+                        name: game.name,
+                        coverURL: URL(string: game.coverURL)!
+                    )
+                }
+                promise(.success(models))
+            } catch {
+                promise(.failure(error))
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }
 
 extension CoreDataGamesRepository: GamesSaver {
     public func saveGames(_ games: [Game]) -> AnyPublisher<Void, Error> {
-        Empty().eraseToAnyPublisher()
+        Future { [weak self] promise in
+            guard let self else { return }
+            
+            do {
+                for (index, game) in games.enumerated() {
+                    let managedGame = GameEntity(context: self.context)
+                    managedGame.id = game.id
+                    managedGame.name = game.name
+                    managedGame.coverURL = game.coverURL.absoluteString
+                    managedGame.sortIndex = Int32(index)
+                }
+                
+                try self.context.save()
+                promise(.success(()))
+                
+            } catch {
+                promise(.failure(error))
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }
