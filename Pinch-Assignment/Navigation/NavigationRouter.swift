@@ -7,11 +7,6 @@
 
 import Foundation
 
-enum NavigationRoute: Hashable {
-    case gameList
-    case gameDetails
-}
-
 @MainActor
 final class NavigationRouter: ObservableObject {
     
