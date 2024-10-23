@@ -20,6 +20,15 @@ final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
         XCTAssertEqual(env.local.loadGamesCallCount, 0)
         XCTAssertEqual(env.remote.loadGamesCallCount, 0)
     }
+    
+    func test_loadGames_loadsFromLocalFirst() {
+        let sut = makeSUT()
+        
+        _ = sut.loadGames()
+        
+        XCTAssertEqual(env.local.loadGamesCallCount, 1)
+        XCTAssertEqual(env.remote.loadGamesCallCount, 0)
+    }
 }
 
 private extension LocalWithRemoteFallbackGamesLoaderTests {
