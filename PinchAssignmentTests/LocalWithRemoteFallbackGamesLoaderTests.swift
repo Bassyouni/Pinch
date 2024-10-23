@@ -16,6 +16,7 @@ final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
     func test_init_doesNotLoadFromAnySource() {
         _ = makeSUT()
         
+        XCTAssertEqual(env.local.savedGames, [])
         XCTAssertEqual(env.local.loadGamesCallCount, 0)
         XCTAssertEqual(env.remote.loadGamesCallCount, 0)
     }
@@ -34,63 +35,25 @@ private extension LocalWithRemoteFallbackGamesLoaderTests {
     }
 }
 
-private class GamesStoreSpy: GamesLoader, GamesSaver {
-    private var loadSubjects = [PassthroughSubject<[Game], Error>]()
-    private var saveSubjects = [PassthroughSubject<Void, Error>]()
-    private(set) var savedGames = [[Game]]()
+private class GamesStoreSpy: GamesLoaderSpy, GamesSaver {
+    private var messages = [(savedGames: [Game], subject: PassthroughSubject<Void, Error>)]()
     
-    var loadGamesCallCount: Int { loadSubjects.count }
-    var saveGamesCallCount: Int { saveSubjects.count }
-    
-    func loadGames() -> AnyPublisher<[Game], Error> {
-        let subject = PassthroughSubject<[Game], Error>()
-        loadSubjects.append(subject)
-        return subject.eraseToAnyPublisher()
+    var savedGames: [[Game]] {
+        messages.map { $0.savedGames }
     }
     
     func saveGames(_ games: [Game]) -> AnyPublisher<Void, Error> {
-        savedGames.append(games)
         let subject = PassthroughSubject<Void, Error>()
-        saveSubjects.append(subject)
+        messages.append((games, subject))
         return subject.eraseToAnyPublisher()
-    }
-    
-    func complete(with games: [Game], at index: Int = 0) {
-        loadSubjects[index].send(games)
-        loadSubjects[index].send(completion: .finished)
-    }
-    
-    func complete(with error: Error, at index: Int = 0) {
-        loadSubjects[index].send(completion: .failure(error))
     }
     
     func completeSave(at index: Int = 0) {
-        saveSubjects[index].send(())
-        saveSubjects[index].send(completion: .finished)
+        messages[index].subject.send(())
+        messages[index].subject.send(completion: .finished)
     }
     
     func completeSave(with error: Error, at index: Int = 0) {
-        saveSubjects[index].send(completion: .failure(error))
-    }
-}
-
-private class GamesLoaderSpy: GamesLoader {
-    private var subjects = [PassthroughSubject<[Game], Error>]()
-    
-    var loadGamesCallCount: Int { subjects.count }
-    
-    func loadGames() -> AnyPublisher<[Game], Error> {
-        let subject = PassthroughSubject<[Game], Error>()
-        subjects.append(subject)
-        return subject.eraseToAnyPublisher()
-    }
-    
-    func complete(with games: [Game], at index: Int = 0) {
-        subjects[index].send(games)
-        subjects[index].send(completion: .finished)
-    }
-    
-    func complete(with error: Error, at index: Int = 0) {
-        subjects[index].send(completion: .failure(error))
+        messages[index].subject.send(completion: .failure(error))
     }
 }

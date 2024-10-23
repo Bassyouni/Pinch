@@ -26,7 +26,7 @@ final class GameListViewModelTests: XCTestCase {
     func test_loadGames_onReceivingError_setsStateToErrorWithMessage() {
         let sut = makeSUT()
         
-        env.loaderSpy.finishLoadGamesWithError()
+        env.loaderSpy.complete(with: NSError(domain: "Test", code: 1))
         
         let expectedErrorMessage = "Unable to load games"
         XCTAssertEqual(sut.gamesState, .error(message: expectedErrorMessage))
@@ -114,27 +114,5 @@ private extension GameListViewModelTests {
         let sut = GameListViewModel(gamesLoader: env.loaderSpy)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
-    }
-}
-
-private class GamesLoaderSpy: GamesLoader {
-    private var loadGamesSubjects = [PassthroughSubject<[Game], Error>]()
-    
-    var loadGamesCallCount: Int {
-        loadGamesSubjects.count
-    }
-    
-    func loadGames() -> AnyPublisher<[Game], Error> {
-        let subject = PassthroughSubject<[Game], Error>()
-        loadGamesSubjects.append(subject)
-        return subject.eraseToAnyPublisher()
-    }
-    
-    func finishLoadGamesWithError(at index: Int = 0) {
-        loadGamesSubjects[index].send(completion: .failure(NSError(domain: "Test", code: 1)))
-    }
-    
-    func send(games: [Game], at index: Int = 0) {
-        loadGamesSubjects[index].send(games)
     }
 }
