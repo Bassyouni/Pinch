@@ -78,12 +78,16 @@ extension CoreDataGamesRepository: GamesSaver {
             guard let self else { return }
             
             do {
+                let request = GameEntity.fetchRequest()
+                request.fetchLimit = 1
+                let maxSortIndex = try self.context.fetch(request).first?.sortIndex ?? -1
+                
                 for (index, game) in games.enumerated() {
                     let managedGame = GameEntity(context: self.context)
                     managedGame.id = game.id
                     managedGame.name = game.name
                     managedGame.coverURL = game.coverURL.absoluteString
-                    managedGame.sortIndex = Int32(index)
+                    managedGame.sortIndex = maxSortIndex + Int32(index + 1)
                 }
                 
                 try self.context.save()
