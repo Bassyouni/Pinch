@@ -10,18 +10,21 @@ import XCTest
 
 @MainActor
 final class NavigationRouterTests: XCTestCase {
-    func test_init_gameListIsByDefaultTheRootOfTheStack() {
-        XCTAssertEqual(makeSUT().stack, [.gameList])
+    func test_init_root_isSetToGameList() {
+        XCTAssertEqual(makeSUT().root, .gameList)
+    }
+    func test_init_gameListIsEmpty() {
+        XCTAssertEqual(makeSUT().stack, [])
     }
     
     func test_push_addsNewViewToTheStack() {
         let sut = makeSUT()
         
         sut.push(.gameDetails)
-        XCTAssertEqual(sut.stack, [.gameList, .gameDetails])
+        XCTAssertEqual(sut.stack, [.gameDetails])
         
         sut.push(.gameList)
-        XCTAssertEqual(sut.stack, [.gameList, .gameDetails, .gameList])
+        XCTAssertEqual(sut.stack, [.gameDetails, .gameList])
     }
     
     func test_pop_removeLastViewFromTheStack() {
@@ -34,7 +37,7 @@ final class NavigationRouterTests: XCTestCase {
         
         XCTAssertEqual(firstRemovedRoute, .gameList)
         XCTAssertEqual(secondRemovedRoute, .gameDetails)
-        XCTAssertEqual(sut.stack, [.gameList])
+        XCTAssertEqual(sut.stack, [])
     }
 }
 
