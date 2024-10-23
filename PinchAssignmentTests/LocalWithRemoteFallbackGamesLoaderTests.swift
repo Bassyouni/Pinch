@@ -78,6 +78,16 @@ final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
             env.remote.complete(with: games)
         }
     }
+    
+    func test_loadGames_onRemoteError_deliversError() {
+        let sut = makeSUT()
+        let error = anyError
+        
+        expect(sut, toCompleteWith: .failure(error)) {
+            env.local.complete(with: [])
+            env.remote.complete(with: error)
+        }
+    }
 }
 
 private extension LocalWithRemoteFallbackGamesLoaderTests {
