@@ -34,14 +34,14 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     
     public func loadGames() {
         gamesState = .loading
-        loadGamesCancellable = loadGames()
+        loadGamesCancellable = loadAndProccessGames()
     }
     
     public func refreshGames() -> Future<Void, Error> {
         return Future { [weak self] promise in
             var temporaryCancellable: AnyCancellable?
             
-            temporaryCancellable = self?.loadGames() { [weak self] result in
+            temporaryCancellable = self?.loadAndProccessGames() { [weak self] result in
                 if case .success = result, temporaryCancellable != nil {
                     self?.loadGamesCancellable?.cancel()
                     self?.loadGamesCancellable = temporaryCancellable
@@ -60,7 +60,7 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
 }
 
 extension GameListViewModel {
-    private func loadGames(completion: ((Result<Void, Error>) -> Void)? = nil) -> AnyCancellable {
+    private func loadAndProccessGames(completion: ((Result<Void, Error>) -> Void)? = nil) -> AnyCancellable {
         gamesLoader.loadGames()
             .map { Self.adjustCoverURLForGamesList($0) }
             .sink { [weak self] result in
