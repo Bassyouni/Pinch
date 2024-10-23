@@ -16,4 +16,13 @@ enum NavigationRoute: Hashable {
 final class NavigationRouter: ObservableObject {
     
     @Published private(set) var stack: [NavigationRoute] = [.gameList]
+    
+    func push(_ route: NavigationRoute) {
+        stack.append(route)
+    }
+    
+    @discardableResult
+    func pop() -> NavigationRoute? {
+        stack.popLast()
+    }
 }
