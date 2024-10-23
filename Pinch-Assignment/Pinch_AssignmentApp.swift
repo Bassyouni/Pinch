@@ -15,10 +15,12 @@ struct Pinch_AssignmentApp: App {
             let clientId = "ctgyj1u5eoe8ynxsoi0anhpctz1oo6"
             let bearerToken = "iawmqtbgk5h47jjglcn4v7sofkue9v"
             let client = URLSessionHTTPClient()
-            let loader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
+            let remoteLoader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
+            let store = CoreDataGamesStore()
+            let gamesLoader = LocalWithRemoteFallbackGamesLoader(store: store, remote: remoteLoader)
             
             NavigationView {
-                GamesListView(viewModel: GameListViewModel(gamesLoader: MainQueueDispatchDecorator(loader)))
+                GamesListView(viewModel: GameListViewModel(gamesLoader: MainQueueDispatchDecorator(gamesLoader)))
             }
         }
     }
