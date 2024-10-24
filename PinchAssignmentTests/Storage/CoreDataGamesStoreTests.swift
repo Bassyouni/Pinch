@@ -42,7 +42,7 @@ final class CoreDataGamesStoreTests: XCTestCase {
         XCTAssertNil(savingError, "Expected to append games successfully")
     }
     
-    func test_saveGames_appendsToPreviouslyInsertedStoreValues() {
+    func test_insert_overridesPreviouslyInsertedStoreValues() {
         let sut = makeSUT()
         let firstGames = uniqueGames()
         save(firstGames, to: sut)
@@ -50,7 +50,7 @@ final class CoreDataGamesStoreTests: XCTestCase {
         let latestGames = uniqueGames()
         save(latestGames, to: sut)
         
-        expect(sut, toLoad: .success(firstGames + latestGames))
+        expect(sut, toLoad: .success(latestGames))
     }
     
     func test_store_shouldRunSerially() {

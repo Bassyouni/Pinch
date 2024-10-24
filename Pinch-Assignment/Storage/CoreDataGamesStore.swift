@@ -74,13 +74,12 @@ extension CoreDataGamesStore: GamesSaver {
     
     private func _saveGames(_ games: [Game]) throws {
         let request = GameEntity.fetchRequest()
-        let existingGames = try self.context.fetch(request)
-        let nextSortIndex = Int32(existingGames.count)
+        let existingGames = try context.fetch(request)
+        existingGames.forEach { context.delete($0) }
         
         for (index, game) in games.enumerated() {
             let managedGame = GameEntity(context: self.context)
-            let sortIndex = nextSortIndex + Int32(index)
-            managedGame.setProtperties(to: game, sortIndex: sortIndex)
+            managedGame.setProtperties(to: game, sortIndex: Int32(index))
         }
         
         try self.context.save()
