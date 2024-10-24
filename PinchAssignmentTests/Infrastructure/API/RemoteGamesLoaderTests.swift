@@ -82,6 +82,19 @@ final class RemoteGamesLoaderTests: XCTestCase {
         XCTAssertEqual(Set(try items(forQuery: "limit")), ["30"])
     }
     
+    func test_loadGames_reuqestBodyHasCorrectHasCorrectClause() throws {
+        let clientID = "any clientID"
+        let sut = makeSUT(clientID: clientID)
+        
+        _ = sut.loadGames()
+        
+        let recivedClause = try items(forQuery: "where").first
+        let expectedClauses = ["rating > 90", "rating_count > 300", "category = 0"]
+        for clause in expectedClauses {
+            XCTAssertEqual(recivedClause?.contains(clause), true)
+        }
+    }
+    
     func test_loadGames_deliversErrorOnError() {
         let sut = makeSUT()
         
