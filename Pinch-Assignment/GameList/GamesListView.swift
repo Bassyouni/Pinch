@@ -74,9 +74,9 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
     
     private func refreshGames() async {
         return await withCheckedContinuation { continuation in
-            viewModel.refreshGames()
-                .sink(receiveCompletion: { _ in continuation.resume() }, receiveValue: {})
-                .store(in: &cancellables)
+            viewModel.refreshGames(completion: {
+                continuation.resume()
+            })
         }
     }
 }
@@ -108,7 +108,7 @@ private class DisplayLogic: GameListDisplayLogic {
         self.gamesState = games
     }
     
-    func refreshGames() -> Future<Void, Error> { .init { _ in } }
+    func refreshGames(completion: () -> Void) {}
     func didSelectGame(_ game: Game) {}
     func loadGames() {}
 }

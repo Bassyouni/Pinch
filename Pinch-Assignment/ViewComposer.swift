@@ -5,6 +5,7 @@
 //  Created by Omar Bassyouni on 23/10/2024.
 //
 
+import Combine
 import SwiftUI
 
 @MainActor
@@ -26,7 +27,7 @@ final class ViewComposer {
         let gamesLoader = LocalWithRemoteFallbackGamesLoader(store: store, remote: remoteLoader)
         
         let viewModel = GameListViewModel(
-            gamesLoader: MainQueueDispatchDecorator(gamesLoader),
+            gamesLoader: MainQueueDispatchDecorator(gamesLoader), gamesRefreshable: NullGamesRefreshable(),
             coordinate: { [weak router] destination in
                 switch destination {
                 case .gameDetails(let game):
@@ -40,5 +41,11 @@ final class ViewComposer {
     
     func composeGameDetailsView(with game: Game) -> some View {
         Text(game.name)
+    }
+}
+
+struct NullGamesRefreshable: GamesRefreshable {
+    func refreshGames() -> AnyPublisher<[Game], any Error> {
+        Empty().eraseToAnyPublisher()
     }
 }

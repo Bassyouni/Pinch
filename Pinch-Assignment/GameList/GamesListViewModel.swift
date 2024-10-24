@@ -10,7 +10,7 @@ import Foundation
 
 public protocol GameListDisplayLogic: ObservableObject {
     var gamesState: ViewState<[Game]> { get }
-    func refreshGames() -> Future<Void, Error>
+    func refreshGames(completion: @escaping () -> Void)
     func didSelectGame(_ game: Game)
     func loadGames()
 }
@@ -24,11 +24,13 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     @Published private(set) public var gamesState: ViewState<[Game]> = .loaded([])
     
     private let gamesLoader: GamesLoader
+    private let gamesRefreshable: GamesRefreshable
     private var loadGamesCancellable: AnyCancellable?
     private let coordinate: (GameListViewTransition) -> Void
     
-    public init(gamesLoader: GamesLoader, coordinate: @escaping (GameListViewTransition) -> Void) {
+    public init(gamesLoader: GamesLoader, gamesRefreshable: GamesRefreshable, coordinate: @escaping (GameListViewTransition) -> Void) {
         self.gamesLoader = gamesLoader
+        self.gamesRefreshable = gamesRefreshable
         self.coordinate = coordinate
     }
     
@@ -37,20 +39,25 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
         loadGamesCancellable = loadAndProccessGames()
     }
     
-    public func refreshGames() -> Future<Void, Error> {
-        return Future { [weak self] promise in
-            var temporaryCancellable: AnyCancellable?
-            
-            temporaryCancellable = self?.loadAndProccessGames() { [weak self] result in
-                if case .success = result, temporaryCancellable != nil {
+    public func refreshGames(completion: @escaping () -> Void) {
+        var temporaryCancellable: AnyCancellable?
+        
+        temporaryCancellable = gamesRefreshable.refreshGames()
+            .map { Self.adjustCoverURLForGamesList($0) }
+            .sink { [weak self] result in
+                if case .failure = result {
+                    self?.gamesState = .error(message: "Unable to load games")
+                }
+                
+                completion()
+            } receiveValue: { [weak self] games in
+                if let temporaryCancellable = temporaryCancellable {
                     self?.loadGamesCancellable?.cancel()
                     self?.loadGamesCancellable = temporaryCancellable
                 }
                 
-                temporaryCancellable = nil
-                promise(.success(()))
+                self?.gamesState = .loaded(games)
             }
-        }
     }
     
     public func didSelectGame(_ game: Game) {

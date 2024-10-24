@@ -88,16 +88,14 @@ final class GameListViewModelTests: XCTestCase {
         let refreshPublisherGames = [Game.uniqueStub(), .uniqueStub()]
 
         sut.loadGames()
-        env.loaderSpy.send(games: initialPublisherGames, at: 0)
+        env.loaderSpy.send(games: initialPublisherGames)
 
-        sut.refreshGames()
-            .sink(receiveCompletion: { _ in }, receiveValue: {})
-            .store(in: &cancellables)
+        sut.refreshGames(completion: {})
 
-        env.loaderSpy.send(games: refreshPublisherGames, at: 1)
+        env.refreshableSpy.complete(with: refreshPublisherGames)
         XCTAssertEqual(sut.gamesState, .loaded(refreshPublisherGames))
         
-        env.loaderSpy.send(games: initialPublisherGames, at: 0)
+        env.loaderSpy.send(games: initialPublisherGames)
         XCTAssertEqual(sut.gamesState, .loaded(refreshPublisherGames), "Expected inital publisher to be terminated")
     }
     
@@ -107,10 +105,10 @@ final class GameListViewModelTests: XCTestCase {
         env.loaderSpy.send(games: [.uniqueStub()], at: 0)
         let exp = expectation(description: "Expected refesh to be done")
         
-        sut.refreshGames()
-            .sink(receiveCompletion: { _ in exp.fulfill() }, receiveValue: {})
-            .store(in: &cancellables)
-        env.loaderSpy.send(games: [.uniqueStub()], at: 1)
+        sut.refreshGames(completion: {
+            exp.fulfill()
+        })
+        env.refreshableSpy.complete(with: [.uniqueStub()])
 
         wait(for: [exp], timeout: 0.1)
     }
@@ -131,10 +129,11 @@ private extension GameListViewModelTests {
     struct Environment {
         let loaderSpy = GamesLoaderSpy()
         let coordinate = CoordinateSpy()
+        let refreshableSpy = GamesRefreshableSpy()
     }
     
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> GameListViewModel {
-        let sut = GameListViewModel(gamesLoader: env.loaderSpy, coordinate: env.coordinate.closure)
+        let sut = GameListViewModel(gamesLoader: env.loaderSpy, gamesRefreshable: env.refreshableSpy, coordinate: env.coordinate.closure)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
@@ -145,4 +144,19 @@ final class CoordinateSpy {
     private(set) lazy var closure: (GameListViewTransition) -> Void = {
         { self.directions.append($0) }
     }()
+}
+
+final class GamesRefreshableSpy: GamesRefreshable {
+    private var subjects = [PassthroughSubject<[Game], Error>]()
+    
+    func refreshGames() -> AnyPublisher<[Game], Error> {
+        let subject = PassthroughSubject<[Game], Error>()
+        subjects.append(subject)
+        return subject.eraseToAnyPublisher()
+    }
+    
+    func complete(with games: [Game], at index: Int = 0) {
+        subjects[index].send(games)
+        subjects[index].send(completion: .finished)
+    }
 }
