@@ -85,10 +85,10 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
 #Preview("Games List") {
     NavigationView {
         GamesListView(viewModel: DisplayLogic(games: .loaded([
-            Game(id: "1", name: "The Witcher 3", coverURL: DisplayLogic.testImage),
-            Game(id: "2", name: "The Last of us", coverURL: DisplayLogic.testImage),
-            Game(id: "3", name: "Counter Strike", coverURL: DisplayLogic.testImage),
-            Game(id: "4", name: "Red Alert", coverURL: DisplayLogic.testImage),
+            DisplayLogic.makeGame(id: "1", name: "The Witcher 3"),
+            DisplayLogic.makeGame(id: "2", name: "The Last of us"),
+            DisplayLogic.makeGame(id: "3", name: "Counter Strike"),
+            DisplayLogic.makeGame(id: "4", name: "Red Alert"),
         ])))
     }
 }
@@ -112,4 +112,17 @@ private class DisplayLogic: GameListDisplayLogic {
     func refreshGames(completion: () -> Void) {}
     func didSelectGame(_ game: Game) {}
     func loadGames() {}
+    
+    static func makeGame(id: String, name: String) -> Game {
+        Game(
+            id: id,
+            name: name,
+            coverURL: DisplayLogic.testImage,
+            summary: "",
+            rating: 0,
+            platforms: [],
+            genres: [],
+            videosIDs: nil
+        )
+    }
 }

@@ -87,7 +87,16 @@ extension GameListViewModel {
                 urlString.replaceSubrange(range, with: "t_cover_med")
             }
             
-            return Game(id: game.id, name: game.name, coverURL: URL(string: urlString) ?? game.coverURL)
+            return Game(
+                id: game.id,
+                name: game.name,
+                coverURL: URL(string: urlString) ?? game.coverURL,
+                summary: game.summary,
+                rating: game.rating,
+                platforms: game.platforms,
+                genres: game.genres,
+                videosIDs: game.videosIDs
+            )
         }
     }
 }

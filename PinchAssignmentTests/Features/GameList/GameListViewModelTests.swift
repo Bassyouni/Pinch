@@ -63,7 +63,7 @@ final class GameListViewModelTests: XCTestCase {
         sut.loadGames()
         env.loaderSpy.send(games: games)
         
-        let expectedGames = games.map { Game(id: $0.id, name: $0.name, coverURL: URL(string: urlWithPrefix)!) }
+        let expectedGames = games.map { copyGame(from: $0, newURL: urlWithPrefix) }
         XCTAssertEqual(sut.gamesState, .loaded(expectedGames))
     }
     
@@ -78,7 +78,7 @@ final class GameListViewModelTests: XCTestCase {
         sut.loadGames()
         env.loaderSpy.send(games: games)
         
-        let expectedGames = games.map { Game(id: $0.id, name: $0.name, coverURL: URL(string: validSizeURL)!) }
+        let expectedGames = games.map { copyGame(from: $0, newURL: validSizeURL) }
         XCTAssertEqual(sut.gamesState, .loaded(expectedGames))
     }
     
@@ -136,6 +136,19 @@ private extension GameListViewModelTests {
         let sut = GameListViewModel(gamesLoader: env.loaderSpy, gamesRefreshable: env.refreshableSpy, coordinate: env.coordinate.closure)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+    
+    func copyGame(from game: Game, newURL url: String) -> Game {
+        Game(
+            id: game.id,
+            name: game.name,
+            coverURL: URL(string: url)!,
+            summary: game.summary,
+            rating: game.rating,
+            platforms: game.platforms,
+            genres: game.genres,
+            videosIDs: game.videosIDs
+        )
     }
 }
 

@@ -11,6 +11,15 @@ import Pinch_Assignment
 extension Game {
     static func uniqueStub(url: String? = nil) -> Game {
         let id = UUID().uuidString
-        return Game(id: id, name: id, coverURL: URL(string: url ?? "https://www.url.com")!)
+        return Game(
+            id: id,
+            name: id,
+            coverURL: URL(string: url ?? "https://www.url.com")!,
+            summary: "any summary",
+            rating: 33.22,
+            platforms: ["any"],
+            genres: ["any"],
+            videosIDs: ["any"]
+        )
     }
 }

@@ -182,12 +182,27 @@ private extension RemoteGamesLoaderTests {
         name: String,
         coverURL: URL
     ) -> (model: Game, json: [String: Any]) {
-        let model = Game(id: "\(id)", name: name, coverURL: coverURL)
+        let model = Game(
+            id: "\(id)",
+            name: name,
+            coverURL: coverURL,
+            summary: "any summary",
+            rating: 22.2,
+            platforms: ["1", "2"],
+            genres: ["3", "4"],
+            videosIDs: ["5", "6"]
+        )
         
         let json: [String: Any] = [
             "id": id,
             "name": name,
-            "cover": ["url": coverURL.absoluteString]
+            "rating": model.rating,
+            "summary": model.summary,
+            "cover": ["url": coverURL.absoluteString],
+            "platforms": model.platforms.map { ["name": $0] },
+            "genres": model.genres.map { ["name": $0] },
+            "videos": model.videosIDs?.map { ["video_id": $0] } as Any,
+            
         ]
         
         return (model, json)
