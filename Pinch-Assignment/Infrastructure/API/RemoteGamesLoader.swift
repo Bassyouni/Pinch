@@ -52,7 +52,7 @@ final public class RemoteGamesLoader: GamesLoader {
         let limit = "limit 30"
         let sorting = "sort rating desc"
         
-        let neededFields = ["first_release_date", "rating", "name", "cover.url"]
+        let neededFields = ["rating", "name", "cover.url", "platforms.name" , "videos.video_id" , "genres.name", "summary"]
         let fields = "fields \(neededFields.joined(separator: ","))"
         
         request.httpBody = "\(fields);\(sorting);\(limit);".data(using: .utf8, allowLossyConversion: false)

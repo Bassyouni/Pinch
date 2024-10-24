@@ -60,7 +60,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
         
         _ = sut.loadGames()
         
-        let expectedFields = Set(["first_release_date", "rating", "name", "cover.url"])
+        let expectedFields = Set(["rating", "name", "cover.url", "summary", "platforms.name", "videos.video_id", "genres.name"])
         XCTAssertEqual(Set(try items(forQuery: "fields")), expectedFields)
     }
     
