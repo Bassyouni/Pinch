@@ -8,33 +8,34 @@
 import SwiftUI
 
 struct GameDetailsView: View {
-    @ObservedObject var viewModel: GameDetailsViewModel
+
+    let game: Game
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                if let videoID = viewModel.game.videosIDs?.last {
+                if let videoID = game.videosIDs?.last {
                     YouTubeView(videoID: videoID)
                         .frame(maxWidth: .infinity, idealHeight: 300)
                 }
                 
-                Text(viewModel.game.name)
+                Text(game.name)
                     .multilineTextAlignment(.leading)
                 
-                Text("\(Int(floor(viewModel.game.rating))) / 100")
+                Text("\(Int(floor(game.rating))) / 100")
                     .multilineTextAlignment(.leading)
                 
-                if let platforms = viewModel.game.platforms {
+                if let platforms = game.platforms {
                     Text(platforms.joined(separator: ", "))
                         .multilineTextAlignment(.leading)
                 }
                 
-                if let genres = viewModel.game.genres {
+                if let genres = game.genres {
                     Text(genres.joined(separator: ", "))
                         .multilineTextAlignment(.leading)
                 }
                 
-                Text(viewModel.game.summary)
+                Text(game.summary)
                     .multilineTextAlignment(.leading)
             }
         }
@@ -43,33 +44,20 @@ struct GameDetailsView: View {
 }
 
 #Preview {
-    GameDetailsView(viewModel: .init(game: DisplayLogic.makeGame(id: "1", name: "The Witcher")))
+    GameDetailsView(game: makeGame(id: "1", name: "The Witcher"))
 }
 
-private class DisplayLogic: GameListDisplayLogic {
-    let gamesState: ViewState<[Game]>
-    
-    static let testImage = URL(string: "https://images.igdb.com/igdb/image/upload/t_cover_med/co4bvj.jpg")!
-    init(games: ViewState<[Game]>) {
-        self.gamesState = games
-    }
-    
-    func refreshGames(completion: () -> Void) {}
-    func didSelectGame(_ game: Game) {}
-    func loadGames() {}
-    
-    static func makeGame(id: String, name: String) -> Game {
-        Game(
-            id: id,
-            name: name,
-            coverURL: DisplayLogic.testImage,
-            summary: """
+private func makeGame(id: String, name: String) -> Game {
+    Game(
+        id: id,
+        name: name,
+        coverURL: URL(string: "https://images.igdb.com/igdb/image/upload/t_cover_med/co4bvj.jpg")!,
+        summary: """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec pharetra, metus et elementum euismod, est erat tincidunt purus, sed porta arcu massa id ligula. Aenean accumsan ex et enim aliquam dapibus. Donec eleifend vestibulum sem, volutpat commodo enim luctus in. Vestibulum id tristique ex. Mauris eget arcu sit amet ligula rhoncus facilisis. Proin non tortor ut mauris pretium malesuada. Nullam at condimentum lectus, porta varius nulla. Mauris in enim vel urna luctus vehicula ut eu magna. Praesent libero augue, convallis sed turpis vitae, rutrum scelerisque nisl. Vivamus vitae lacus eget erat laoreet lobortis.
 """,
-            rating: 33.42112311,
-            platforms: ["Google Stadia", "Mac", "PC (Microsoft Windows)", "PlayStation 5", "Xbox Series X|S"],
-            genres: ["Role-playing (RPG)", "Strategy", "Turn-based strategy (TBS)", "Tactical, Adventure"],
-            videosIDs: nil
-        )
-    }
+        rating: 33.42112311,
+        platforms: ["Google Stadia", "Mac", "PC (Microsoft Windows)", "PlayStation 5", "Xbox Series X|S"],
+        genres: ["Role-playing (RPG)", "Strategy", "Turn-based strategy (TBS)", "Tactical, Adventure"],
+        videosIDs: nil
+    )
 }
