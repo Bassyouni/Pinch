@@ -54,6 +54,15 @@ final class RemoteGamesLoaderTests: XCTestCase {
         XCTAssertEqual(env.client.requests[0].value(forHTTPHeaderField: "Authorization"), "Bearer \(bearerToken)")
     }
     
+    func test_loadGames_reuqestHeadersHasClientID() {
+        let clientID = "any clientID"
+        let sut = makeSUT(clientID: clientID)
+        
+        _ = sut.loadGames()
+        
+        XCTAssertEqual(env.client.requests[0].value(forHTTPHeaderField: "Client-ID"), clientID)
+    }
+    
     func test_loadGames_reuqestBodyHasCorrectHasFieldsNeeded() throws {
         let clientID = "any clientID"
         let sut = makeSUT(clientID: clientID)
