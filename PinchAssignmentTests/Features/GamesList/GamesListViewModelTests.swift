@@ -54,34 +54,6 @@ final class GamesListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.gamesState, .loaded(newGames))
     }
     
-    func test_loadGames_onReceivingNewGames_prefixCoverURLWithHTTPs() {
-        let sut = makeSUT()
-        let urlWithNoPrefix = "//www.url.com"
-        let urlWithPrefix = "https://www.url.com"
-        let games = [Game.uniqueStub(url: urlWithNoPrefix), .uniqueStub(url: urlWithPrefix)]
-        
-        sut.loadGames()
-        env.loaderSpy.send(games: games)
-        
-        let expectedGames = games.map { copyGame(from: $0, newURL: urlWithPrefix) }
-        XCTAssertEqual(sut.gamesState, .loaded(expectedGames))
-    }
-    
-    func test_loadGames_onReceivingNewGames_replacesCoverURLSizeToSizeThatFitsGamesList() {
-        let sut = makeSUT()
-        let validSizeURL = "https://www.url.com/path/t_cover_med/photoName.jpg"
-        let otherSizeURL1 = "https://www.url.com/path/t_thumb/photoName.jpg"
-        let otherSizeURL2 = "https://www.url.com/path/t_cover_small/photoName.jpg"
-        
-        let games = [Game.uniqueStub(url: otherSizeURL1), .uniqueStub(url: otherSizeURL2)]
-        
-        sut.loadGames()
-        env.loaderSpy.send(games: games)
-        
-        let expectedGames = games.map { copyGame(from: $0, newURL: validSizeURL) }
-        XCTAssertEqual(sut.gamesState, .loaded(expectedGames))
-    }
-    
     func test_refreshGames_loadsGamesAgainAndTerminatesOldPublisher() {
         let sut = makeSUT()
         let initialPublisherGames = [Game.uniqueStub(), .uniqueStub()]
@@ -136,19 +108,6 @@ private extension GamesListViewModelTests {
         let sut = GameListViewModel(gamesLoader: env.loaderSpy, gamesRefreshable: env.refreshableSpy, coordinate: env.coordinate.closure)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
-    }
-    
-    func copyGame(from game: Game, newURL url: String) -> Game {
-        Game(
-            id: game.id,
-            name: game.name,
-            coverURL: URL(string: url)!,
-            summary: game.summary,
-            rating: game.rating,
-            platforms: game.platforms,
-            genres: game.genres,
-            videosIDs: game.videosIDs
-        )
     }
 }
 

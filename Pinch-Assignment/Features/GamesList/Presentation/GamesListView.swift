@@ -13,6 +13,7 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
     @StateObject var viewModel: ViewModel
     @State private var cancellables = Set<AnyCancellable>()
     @State private var scrollPositionID: String?
+    let urlEncoder: GameImageURLEncoder
     
     var body: some View {
         VStack {
@@ -48,7 +49,7 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
     
     private func gameCell(_ game: Game) -> some View {
         HStack(alignment: .center) {
-            AsyncImage(url: game.coverURL) { image in
+            AsyncImage(url: coverURL(for: game)) { image in
                 image
                     .resizable()
                     .scaledToFit()
@@ -91,6 +92,10 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
             })
         }
     }
+    
+    private func coverURL(for game: Game) -> URL {
+        urlEncoder.encode(game.coverURL, forSize: .portrait)
+    }
 }
 
 #Preview("Games List") {
@@ -100,23 +105,23 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
             DisplayLogic.makeGame(id: "2", name: "The Last of us"),
             DisplayLogic.makeGame(id: "3", name: "Counter Strike"),
             DisplayLogic.makeGame(id: "4", name: "Red Alert"),
-        ])))
+        ])), urlEncoder: DisplayLogic())
     }
 }
 
 #Preview("Error State") {
-    GamesListView(viewModel: DisplayLogic(games: .error(message: "Something Went Wrong\nTry again later")))
+    GamesListView(viewModel: DisplayLogic(games: .error(message: "Something Went Wrong\nTry again later")), urlEncoder: DisplayLogic())
 }
 
 #Preview("Loading State") {
-    GamesListView(viewModel: DisplayLogic(games: .loading))
+    GamesListView(viewModel: DisplayLogic(games: .loading), urlEncoder: DisplayLogic())
 }
 
-private class DisplayLogic: GameListDisplayLogic {
+private class DisplayLogic: GameListDisplayLogic, GameImageURLEncoder {
     let gamesState: ViewState<[Game]>
     
     static let testImage = URL(string: "https://images.igdb.com/igdb/image/upload/t_cover_med/co4bvj.jpg")!
-    init(games: ViewState<[Game]>) {
+    init(games: ViewState<[Game]> = .loading) {
         self.gamesState = games
     }
     
@@ -136,4 +141,5 @@ private class DisplayLogic: GameListDisplayLogic {
             videosIDs: nil
         )
     }
+    func encode(_ url: URL, forSize size: GameImageSize) -> URL { url }
 }

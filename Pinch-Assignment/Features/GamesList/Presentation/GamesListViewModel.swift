@@ -65,7 +65,6 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
 extension GameListViewModel {
     private func processGames(from publisher: AnyPublisher<[Game], Error>) -> AnyCancellable {
         publisher
-            .map { Self.adjustCoverURLForGamesList($0) }
             .sink { [weak self] result in
                 if case .failure = result {
                     self?.gamesState = .error(message: "Unable to load games")
@@ -73,30 +72,5 @@ extension GameListViewModel {
             } receiveValue: { [weak self] games in
                 self?.gamesState = .loaded(games)
             }
-    }
-    
-    private static func adjustCoverURLForGamesList(_ games: [Game]) -> [Game] {
-        games.map { game in
-            var urlString = game.coverURL.absoluteString
-            
-            if !urlString.hasPrefix("https:") {
-                urlString = "https:" + urlString
-            }
-            
-            if let range = urlString.range(of: "t_[^/]+", options: .regularExpression) {
-                urlString.replaceSubrange(range, with: "t_cover_med")
-            }
-            
-            return Game(
-                id: game.id,
-                name: game.name,
-                coverURL: URL(string: urlString) ?? game.coverURL,
-                summary: game.summary,
-                rating: game.rating,
-                platforms: game.platforms,
-                genres: game.genres,
-                videosIDs: game.videosIDs
-            )
-        }
     }
 }

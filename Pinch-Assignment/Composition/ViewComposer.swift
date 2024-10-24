@@ -37,7 +37,7 @@ final class ViewComposer {
             }
         )
         
-        return GamesListView(viewModel: viewModel)
+        return GamesListView(viewModel: viewModel, urlEncoder: IGDBGameImageURLEncoder())
     }()
     
     func composeGameDetailsView(with game: Game) -> some View {
