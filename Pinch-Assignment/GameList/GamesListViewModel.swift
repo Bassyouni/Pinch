@@ -45,7 +45,6 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
                 if case .success = result, temporaryCancellable != nil {
                     self?.loadGamesCancellable?.cancel()
                     self?.loadGamesCancellable = temporaryCancellable
-                    self?.gamesState = .loaded([])
                 }
                 
                 temporaryCancellable = nil
@@ -70,16 +69,8 @@ extension GameListViewModel {
                 }
             } receiveValue: { [weak self] games in
                 completion?(.success(()))
-                self?.proccessNew(games: games)
+                self?.gamesState = .loaded(games)
             }
-    }
-    
-    private func proccessNew(games: [Game]) {
-        if case let .loaded(oldGames) = gamesState {
-            gamesState = .loaded(oldGames + games)
-        } else {
-            gamesState = .loaded(games)
-        }
     }
     
     private static func adjustCoverURLForGamesList(_ games: [Game]) -> [Game] {

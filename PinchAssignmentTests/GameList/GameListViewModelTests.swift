@@ -41,7 +41,7 @@ final class GameListViewModelTests: XCTestCase {
         XCTAssertEqual(sut.gamesState, .error(message: expectedErrorMessage))
     }
     
-    func test_loadGames_onReceivingNewGames_setsStateToLoadedWithNewGamesAppendedToWhatWasAlreadyThere() {
+    func test_loadGames_onReceivingNewGamesTwice_overridesOldGames() {
         let sut = makeSUT()
         let initalGames = [Game.uniqueStub(), .uniqueStub()]
         
@@ -51,7 +51,7 @@ final class GameListViewModelTests: XCTestCase {
         
         let newGames = [Game.uniqueStub(), .uniqueStub()]
         env.loaderSpy.send(games: newGames)
-        XCTAssertEqual(sut.gamesState, .loaded(initalGames + newGames))
+        XCTAssertEqual(sut.gamesState, .loaded(newGames))
     }
     
     func test_loadGames_onReceivingNewGames_prefixCoverURLWithHTTPs() {
@@ -86,7 +86,7 @@ final class GameListViewModelTests: XCTestCase {
         let sut = makeSUT()
         let initialPublisherGames = [Game.uniqueStub(), .uniqueStub()]
         let refreshPublisherGames = [Game.uniqueStub(), .uniqueStub()]
-        let newerRefreshPublisherGames = [Game.uniqueStub(), .uniqueStub()]
+
         sut.loadGames()
         env.loaderSpy.send(games: initialPublisherGames, at: 0)
 
@@ -99,9 +99,6 @@ final class GameListViewModelTests: XCTestCase {
         
         env.loaderSpy.send(games: initialPublisherGames, at: 0)
         XCTAssertEqual(sut.gamesState, .loaded(refreshPublisherGames), "Expected inital publisher to be terminated")
-        
-        env.loaderSpy.send(games: newerRefreshPublisherGames, at: 1)
-        XCTAssertEqual(sut.gamesState, .loaded(refreshPublisherGames + newerRefreshPublisherGames))
     }
     
     func test_refreshGames_loadsGamesAgainAndNotifesCaller() {
