@@ -21,6 +21,7 @@ final class GamesLoaderWithFallbackTests: XCTestCase {
         XCTAssertEqual(env.remote.loadGamesCallCount, 0)
     }
     
+    // MARK: - load games
     func test_loadGames_loadsFromLocalFirst() {
         let sut = makeSUT()
         
@@ -34,7 +35,7 @@ final class GamesLoaderWithFallbackTests: XCTestCase {
         let sut = makeSUT()
         let games = uniqueGames()
         
-        expect(sut, toCompleteWith: .success(games)) {
+        expect(sut.loadGames(), toCompleteWith: .success(games)) {
             env.local.complete(with: [])
             env.remote.complete(with: games)
         }
@@ -64,7 +65,7 @@ final class GamesLoaderWithFallbackTests: XCTestCase {
         let sut = makeSUT()
         let localGames = uniqueGames()
         
-        expect(sut, toCompleteWith: .success(localGames)) {
+        expect(sut.loadGames(), toCompleteWith: .success(localGames)) {
             env.local.complete(with: localGames)
         }
     }
@@ -73,7 +74,7 @@ final class GamesLoaderWithFallbackTests: XCTestCase {
         let sut = makeSUT()
         let games = uniqueGames()
         
-        expect(sut, toCompleteWith: .success(games)) {
+        expect(sut.loadGames(), toCompleteWith: .success(games)) {
             env.local.complete(with: anyError)
             env.remote.complete(with: games)
         }
@@ -83,9 +84,59 @@ final class GamesLoaderWithFallbackTests: XCTestCase {
         let sut = makeSUT()
         let error = anyError
         
-        expect(sut, toCompleteWith: .failure(error)) {
+        expect(sut.loadGames(), toCompleteWith: .failure(error)) {
             env.local.complete(with: [])
             env.remote.complete(with: error)
+        }
+    }
+    
+    // MARK: - refresh games
+    func test_refreshGames_loadsFromRemoteFirst() {
+        let sut = makeSUT()
+        
+        _ = sut.refreshGames()
+        
+        XCTAssertEqual(env.local.loadGamesCallCount, 0)
+        XCTAssertEqual(env.remote.loadGamesCallCount, 1)
+    }
+    
+    func test_refreshGames_loadsFromRemote() {
+        let sut = makeSUT()
+        let games = uniqueGames()
+        
+        expect(sut.refreshGames(), toCompleteWith: .success(games)) {
+            env.remote.complete(with: games)
+        }
+    }
+    
+    func test_refreshGames_onRemoteSucces_SavesToLocal() {
+        let sut = makeSUT()
+        let games = uniqueGames()
+        
+        sut.refreshGames().sink(receiveCompletion: { _ in }, receiveValue: { _ in }).store(in: &cancellables)
+        env.remote.complete(with: games)
+        
+        XCTAssertEqual(env.local.savedGames, [games])
+    }
+    
+        
+    func test_refreshGames_onRemoteError_loadsFromLocal() {
+        let sut = makeSUT()
+        let games = uniqueGames()
+        
+        expect(sut.refreshGames(), toCompleteWith: .success(games)) {
+            env.remote.complete(with: anyError)
+            env.local.complete(with: games)
+        }
+    }
+    
+    func test_refreshGames_onLocalError_deliversError() {
+        let sut = makeSUT()
+        let error = anyError
+        
+        expect(sut.refreshGames(), toCompleteWith: .failure(error)) {
+            env.remote.complete(with: NSError(domain: "", code: 0))
+            env.local.complete(with: error)
         }
     }
 }
@@ -103,7 +154,7 @@ private extension GamesLoaderWithFallbackTests {
     }
     
     func expect(
-        _ sut: GamesLoaderWithFallback,
+        _ publisher: AnyPublisher<[Game], Error>,
         toCompleteWith expectedResult: Result<[Game], Error>,
         when action: () -> Void,
         file: StaticString = #filePath,
@@ -112,7 +163,7 @@ private extension GamesLoaderWithFallbackTests {
         let exp = expectation(description: "Wait for load completion")
         var receivedResult: Result<[Game], Error>?
         
-        sut.loadGames().sink(
+        publisher.sink(
             receiveCompletion: { completion in
                 switch completion {
                 case .finished: break

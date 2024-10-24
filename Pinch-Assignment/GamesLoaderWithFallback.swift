@@ -7,7 +7,7 @@
 
 import Combine
 
-public final class GamesLoaderWithFallback: GamesLoader {
+public final class GamesLoaderWithFallback {
     private let store: GamesLoader & GamesSaver
     private let remote: GamesLoader
     private var cancellables = Set<AnyCancellable>()
@@ -17,6 +17,22 @@ public final class GamesLoaderWithFallback: GamesLoader {
         self.remote = remote
     }
     
+    private func loadFromRemoteAndSaveToStore() -> AnyPublisher<[Game], Error> {
+        remote.loadGames()
+            .handleEvents(receiveOutput: { [weak self] games in
+                self?.saveGames(games)
+            })
+            .eraseToAnyPublisher()
+    }
+    
+    private func saveGames(_ games: [Game]) {
+        store.saveGames(games)
+            .sink { _ in } receiveValue: { _ in }
+            .store(in: &cancellables)
+    }
+}
+
+extension GamesLoaderWithFallback: GamesLoader {
     public func loadGames() -> AnyPublisher<[Game], Error> {
         let loadFromRemote = self.loadFromRemoteAndSaveToStore
         
@@ -33,18 +49,19 @@ public final class GamesLoaderWithFallback: GamesLoader {
             }
             .eraseToAnyPublisher()
     }
-    
-    private func loadFromRemoteAndSaveToStore() -> AnyPublisher<[Game], Error> {
-        remote.loadGames()
+}
+
+extension GamesLoaderWithFallback: GamesRefreshable {
+    public func refreshGames() -> AnyPublisher<[Game], any Error> {
+        let store = store
+        
+        return remote.loadGames()
             .handleEvents(receiveOutput: { [weak self] games in
                 self?.saveGames(games)
             })
+            .catch { [store] _ in
+                return store.loadGames()
+            }
             .eraseToAnyPublisher()
-    }
-    
-    private func saveGames(_ games: [Game]) {
-        store.saveGames(games)
-            .sink { _ in } receiveValue: { _ in }
-            .store(in: &cancellables)
     }
 }
