@@ -11,14 +11,11 @@ struct GameDetailsView: View {
     @ObservedObject var viewModel: GameDetailsViewModel
     
     var body: some View {
-        
         ScrollView {
-            VStack {
-                if let videoIDs = viewModel.game.videosIDs {
-                    ForEach(videoIDs, id: \.self) {
-                        YouTubeView(videoID: $0)
-                            .frame(maxWidth: .infinity)
-                    }
+            VStack(spacing: 20) {
+                if let videoID = viewModel.game.videosIDs?.last {
+                    YouTubeView(videoID: videoID)
+                        .frame(maxWidth: .infinity, idealHeight: 300)
                 }
                 
                 Text(viewModel.game.name)
@@ -36,7 +33,6 @@ struct GameDetailsView: View {
                     Text(genres.joined(separator: ", "))
                         .multilineTextAlignment(.leading)
                 }
-                
                 
                 Text(viewModel.game.summary)
                     .multilineTextAlignment(.leading)
