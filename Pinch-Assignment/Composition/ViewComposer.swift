@@ -41,6 +41,6 @@ final class ViewComposer {
     }()
     
     func composeGameDetailsView(with game: Game) -> some View {
-        Text(game.name)
+        GameDetailsView(viewModel: GameDetailsViewModel(game: game))
     }
 }
