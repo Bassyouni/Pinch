@@ -62,7 +62,8 @@ extension CoreDataGamesStore: GamesSaver {
         Future { [weak self] promise in
             self?.queue.async { [weak self] in
                 do {
-                    try self?._saveGames(games)
+                    try self?.deleteOldGames()
+                    try self?.saveNewGames(games)
                     promise(.success(()))
                 } catch {
                     promise(.failure(error))
@@ -72,16 +73,18 @@ extension CoreDataGamesStore: GamesSaver {
         .eraseToAnyPublisher()
     }
     
-    private func _saveGames(_ games: [Game]) throws {
-        let request = GameEntity.fetchRequest()
-        let existingGames = try context.fetch(request)
-        existingGames.forEach { context.delete($0) }
-        
+    private func saveNewGames(_ games: [Game]) throws {
         for (index, game) in games.enumerated() {
             let managedGame = GameEntity(context: self.context)
             managedGame.setProtperties(to: game, sortIndex: Int32(index))
         }
         
         try self.context.save()
+    }
+    
+    private func deleteOldGames() throws {
+        let request = GameEntity.fetchRequest()
+        let existingGames = try context.fetch(request)
+        existingGames.forEach { context.delete($0) }
     }
 }
