@@ -10,9 +10,11 @@ import XCTest
 
 @MainActor
 final class NavigationRouterTests: XCTestCase {
+    
     func test_init_root_isSetToGameList() {
         XCTAssertEqual(makeSUT().root, .gameList)
     }
+    
     func test_init_gameListIsEmpty() {
         XCTAssertEqual(makeSUT().stack, [])
     }

@@ -10,6 +10,7 @@ import Combine
 import Pinch_Assignment
 
 final class IGDBGameImageURLEncoderTests: XCTestCase {
+    
     func test_encode_whenURLHasNoHTTPs_prefixCoverURLWithHTTPs() {
         let sut = makeSUT()
         let urlWithNoPrefix = URL(string: "//www.url.com")!
@@ -38,9 +39,6 @@ final class IGDBGameImageURLEncoderTests: XCTestCase {
     
         XCTAssertEqual(encodedURL, expectedSizeURL)
     }
-    
-    
-
 }
 
 private extension IGDBGameImageURLEncoderTests {

@@ -10,6 +10,7 @@ import Combine
 import Pinch_Assignment
 
 final class RemoteGamesLoaderTests: XCTestCase {
+    
     private let env = Environment()
     private var cancellables = Set<AnyCancellable>()
     

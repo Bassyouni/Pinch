@@ -10,6 +10,7 @@ import Combine
 import Pinch_Assignment
 
 final class GamesLoaderWithFallbackTests: XCTestCase {
+    
     private let env = Environment()
     private var cancellables = Set<AnyCancellable>()
     
@@ -119,7 +120,6 @@ final class GamesLoaderWithFallbackTests: XCTestCase {
         XCTAssertEqual(env.local.savedGames, [games])
     }
     
-        
     func test_refreshGames_onRemoteError_loadsFromLocal() {
         let sut = makeSUT()
         let games = uniqueGames()

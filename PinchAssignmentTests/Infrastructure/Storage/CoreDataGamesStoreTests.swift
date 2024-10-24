@@ -10,6 +10,7 @@ import Combine
 import Pinch_Assignment
 
 final class CoreDataGamesStoreTests: XCTestCase {
+    
     var cancellables = Set<AnyCancellable>()
     
     func test_loadGames_hasNoSideEffectsOnEmptyStore() {

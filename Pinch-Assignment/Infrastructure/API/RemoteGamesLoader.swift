@@ -51,10 +51,10 @@ final public class RemoteGamesLoader: GamesLoader {
     private func addBody(to request: inout URLRequest) {
         let limit = "limit 30"
         let sorting = "sort rating desc"
+        let clause = "where rating_count > 300 & rating > 90 & category = 0"
         
         let neededFields = ["rating", "name", "cover.url", "platforms.name" , "videos.video_id" , "genres.name", "summary"]
         let fields = "fields \(neededFields.joined(separator: ","))"
-        let clause = "where rating_count > 300 & rating > 90 & category = 0"
         
         request.httpBody = "\(fields);\(clause);\(sorting);\(limit);".data(using: .utf8, allowLossyConversion: false)
     }

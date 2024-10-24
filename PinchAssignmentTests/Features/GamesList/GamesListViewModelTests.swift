@@ -10,6 +10,7 @@ import Combine
 import Pinch_Assignment
 
 final class GamesListViewModelTests: XCTestCase {
+    
     private let env = Environment()
     private var cancellables = Set<AnyCancellable>()
     
