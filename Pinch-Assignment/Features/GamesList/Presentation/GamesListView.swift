@@ -10,8 +10,9 @@ import Combine
 
 struct GamesListView<ViewModel: GameListDisplayLogic> : View {
     
-    @ObservedObject var viewModel: ViewModel
+    @StateObject var viewModel: ViewModel
     @State private var cancellables = Set<AnyCancellable>()
+    @State private var scrollPositionID: String?
     
     var body: some View {
         VStack {
@@ -20,12 +21,22 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
                 ProgressView()
                 
             case let .loaded(games):
-                List(games, id: \.id) { game in
-                    gameCell(game)
-                        .onTapGesture { viewModel.didSelectGame(game)  }
+                ScrollViewReader{ proxy in
+                    List(games, id: \.id) { game in
+                        gameCell(game)
+                            .onTapGesture {
+                                viewModel.didSelectGame(game)
+                                scrollPositionID = game.id
+                            }
+                            .id(game.id)
+                    }
+                    .refreshable { await refreshGames() }
+                    .scrollIndicators(.hidden)
+                    .onAppear {
+                        proxy.scrollTo(scrollPositionID, anchor: .center)
+                    }
                 }
-                .refreshable { await refreshGames() }
-                .scrollIndicators(.hidden)
+                
                 
             case let .error(errorMessage):
                 errorView(errorMessage)
