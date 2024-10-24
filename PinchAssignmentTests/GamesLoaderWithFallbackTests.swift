@@ -1,5 +1,5 @@
 //
-//  LocalWithRemoteFallbackGamesLoaderTests.swift
+//  GamesLoaderWithFallbackTests.swift
 //  Pinch-Assignment
 //
 //  Created by Omar Bassyouni on 23/10/2024.
@@ -9,7 +9,7 @@ import XCTest
 import Combine
 import Pinch_Assignment
 
-final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
+final class GamesLoaderWithFallbackTests: XCTestCase {
     private let env = Environment()
     private var cancellables = Set<AnyCancellable>()
     
@@ -90,20 +90,20 @@ final class LocalWithRemoteFallbackGamesLoaderTests: XCTestCase {
     }
 }
 
-private extension LocalWithRemoteFallbackGamesLoaderTests {
+private extension GamesLoaderWithFallbackTests {
     struct Environment {
         let local = GamesStoreSpy()
         let remote = GamesLoaderSpy()
     }
     
-    func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> LocalWithRemoteFallbackGamesLoader {
-        let sut = LocalWithRemoteFallbackGamesLoader(store: env.local, remote: env.remote)
+    func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> GamesLoaderWithFallback {
+        let sut = GamesLoaderWithFallback(store: env.local, remote: env.remote)
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
     
     func expect(
-        _ sut: LocalWithRemoteFallbackGamesLoader,
+        _ sut: GamesLoaderWithFallback,
         toCompleteWith expectedResult: Result<[Game], Error>,
         when action: () -> Void,
         file: StaticString = #filePath,

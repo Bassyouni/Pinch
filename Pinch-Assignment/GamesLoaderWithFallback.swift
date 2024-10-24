@@ -1,5 +1,5 @@
 //
-//  LocalWithRemoteFallbackGamesLoader.swift
+//  GamesLoaderWithFallback.swift
 //  Pinch-Assignment
 //
 //  Created by Omar Bassyouni on 23/10/2024.
@@ -7,7 +7,7 @@
 
 import Combine
 
-public final class LocalWithRemoteFallbackGamesLoader: GamesLoader {
+public final class GamesLoaderWithFallback: GamesLoader {
     private let store: GamesLoader & GamesSaver
     private let remote: GamesLoader
     private var cancellables = Set<AnyCancellable>()

@@ -24,7 +24,7 @@ final class ViewComposer {
         let client = URLSessionHTTPClient()
         let remoteLoader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
         let store = CoreDataGamesStore()
-        let gamesLoader = LocalWithRemoteFallbackGamesLoader(store: store, remote: remoteLoader)
+        let gamesLoader = GamesLoaderWithFallback(store: store, remote: remoteLoader)
         
         let viewModel = GameListViewModel(
             gamesLoader: MainQueueDispatchDecorator(gamesLoader), gamesRefreshable: NullGamesRefreshable(),
