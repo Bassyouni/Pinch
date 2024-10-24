@@ -11,20 +11,33 @@ struct GameDetailsView: View {
     @ObservedObject var viewModel: GameDetailsViewModel
     
     var body: some View {
-        Text(viewModel.game.name)
-            .multilineTextAlignment(.leading)
         
-        Text("\(Int(floor(viewModel.game.rating))) / 100")
-            .multilineTextAlignment(.leading)
+        ScrollView {
+            VStack {
+                if let videoIDs = viewModel.game.videosIDs {
+                    ForEach(videoIDs, id: \.self) {
+                        YouTubeView(videoID: $0)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                
+                Text(viewModel.game.name)
+                    .multilineTextAlignment(.leading)
+                
+                Text("\(Int(floor(viewModel.game.rating))) / 100")
+                    .multilineTextAlignment(.leading)
+                
+                Text(viewModel.game.platforms.joined(separator: ", "))
+                    .multilineTextAlignment(.leading)
+                
+                Text(viewModel.game.genres.joined(separator: ", "))
+                    .multilineTextAlignment(.leading)
+                
+                Text(viewModel.game.summary)
+                    .multilineTextAlignment(.leading)
+            }
+        }
         
-        Text(viewModel.game.platforms.joined(separator: ", "))
-            .multilineTextAlignment(.leading)
-        
-        Text(viewModel.game.genres.joined(separator: ", "))
-            .multilineTextAlignment(.leading)
-        
-        Text(viewModel.game.summary)
-            .multilineTextAlignment(.leading)
     }
 }
 
