@@ -27,6 +27,7 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     private let gamesRefreshable: GamesRefreshable
     private var loadGamesCancellable: AnyCancellable?
     private let coordinate: (GameListViewTransition) -> Void
+    private var cancellables = Set<AnyCancellable>()
     
     public init(gamesLoader: GamesLoader, gamesRefreshable: GamesRefreshable, coordinate: @escaping (GameListViewTransition) -> Void) {
         self.gamesLoader = gamesLoader
@@ -36,28 +37,24 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
     
     public func loadGames() {
         gamesState = .loading
-        loadGamesCancellable = loadAndProccessGames()
+        loadGamesCancellable = processGames(from: gamesLoader.loadGames())
     }
     
     public func refreshGames(completion: @escaping () -> Void) {
         var temporaryCancellable: AnyCancellable?
         
-        temporaryCancellable = gamesRefreshable.refreshGames()
-            .map { Self.adjustCoverURLForGamesList($0) }
-            .sink { [weak self] result in
-                if case .failure = result {
-                    self?.gamesState = .error(message: "Unable to load games")
-                }
-                
-                completion()
-            } receiveValue: { [weak self] games in
-                if let temporaryCancellable = temporaryCancellable {
-                    self?.loadGamesCancellable?.cancel()
-                    self?.loadGamesCancellable = temporaryCancellable
-                }
-                
-                self?.gamesState = .loaded(games)
-            }
+        let refreshPublisher = gamesRefreshable.refreshGames()
+        temporaryCancellable = processGames(from: refreshPublisher)
+        
+        refreshPublisher
+            .prefix(1)
+            .sink { result in
+            completion()
+        } receiveValue: { [weak self]_ in
+            self?.loadGamesCancellable?.cancel()
+            self?.loadGamesCancellable = temporaryCancellable
+        }
+        .store(in: &cancellables)
     }
     
     public func didSelectGame(_ game: Game) {
@@ -66,16 +63,14 @@ public final class GameListViewModel: ObservableObject, GameListDisplayLogic {
 }
 
 extension GameListViewModel {
-    private func loadAndProccessGames(completion: ((Result<Void, Error>) -> Void)? = nil) -> AnyCancellable {
-        gamesLoader.loadGames()
+    private func processGames(from publisher: AnyPublisher<[Game], Error>) -> AnyCancellable {
+        publisher
             .map { Self.adjustCoverURLForGamesList($0) }
             .sink { [weak self] result in
-                if case let .failure(error) = result {
-                    completion?(.failure(error))
+                if case .failure = result {
                     self?.gamesState = .error(message: "Unable to load games")
                 }
             } receiveValue: { [weak self] games in
-                completion?(.success(()))
                 self?.gamesState = .loaded(games)
             }
     }
