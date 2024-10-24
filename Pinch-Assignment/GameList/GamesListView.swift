@@ -25,6 +25,7 @@ struct GamesListView<ViewModel: GameListDisplayLogic> : View {
                         .onTapGesture { viewModel.didSelectGame(game)  }
                 }
                 .refreshable { await refreshGames() }
+                .scrollIndicators(.hidden)
                 
             case let .error(errorMessage):
                 errorView(errorMessage)
