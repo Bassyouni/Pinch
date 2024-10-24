@@ -64,8 +64,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
     }
     
     func test_loadGames_reuqestBodyHasCorrectHasFieldsNeeded() throws {
-        let clientID = "any clientID"
-        let sut = makeSUT(clientID: clientID)
+        let sut = makeSUT()
         
         _ = sut.loadGames()
         
@@ -74,8 +73,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
     }
     
     func test_loadGames_reuqestBodyHasCorrectSorting() throws {
-        let clientID = "any clientID"
-        let sut = makeSUT(clientID: clientID)
+        let sut = makeSUT()
         
         _ = sut.loadGames()
     
@@ -83,8 +81,7 @@ final class RemoteGamesLoaderTests: XCTestCase {
     }
     
     func test_loadGames_reuqestBodyHasCorrectLimit() throws {
-        let clientID = "any clientID"
-        let sut = makeSUT(clientID: clientID)
+        let sut = makeSUT()
         
         _ = sut.loadGames()
     
@@ -92,16 +89,12 @@ final class RemoteGamesLoaderTests: XCTestCase {
     }
     
     func test_loadGames_reuqestBodyHasCorrectHasCorrectClause() throws {
-        let clientID = "any clientID"
-        let sut = makeSUT(clientID: clientID)
+        let sut = makeSUT()
         
         _ = sut.loadGames()
         
-        let recivedClause = try items(forQuery: "where").first
-        let expectedClauses = ["rating > 90", "rating_count > 300", "category = 0"]
-        for clause in expectedClauses {
-            XCTAssertEqual(recivedClause?.contains(clause), true)
-        }
+        let expectedClauses = Set(["rating > 90", "rating_count > 300", "category = 0"])
+        XCTAssertEqual(Set(try items(forQuery: "where", separator: " & ")), expectedClauses)
     }
     
     func test_loadGames_deliversErrorOnError() {
@@ -151,7 +144,7 @@ private extension RemoteGamesLoaderTests {
         return sut
     }
     
-    func items(forQuery query: String, file: StaticString = #filePath, line: UInt = #line) throws -> [String] {
+    func items(forQuery query: String, separator: String = ",", file: StaticString = #filePath, line: UInt = #line) throws -> [String] {
         let httpBodyData = try XCTUnwrap(env.client.requests[0].httpBody, file: file, line: line)
         let httpBodyString = try XCTUnwrap(String(data: httpBodyData, encoding: .utf8), file: file, line: line)
         
@@ -159,7 +152,7 @@ private extension RemoteGamesLoaderTests {
             .split(separator: ";")
             .first(where: { $0.contains(query) })?
             .replacingOccurrences(of: "\(query) ", with: "")
-            .split(separator: ",")
+            .split(separator: separator)
             .map { String($0) }
         
         return try XCTUnwrap(items, file: file, line: line)
