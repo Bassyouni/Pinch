@@ -8,28 +8,28 @@
 import SwiftUI
 
 struct GameDetailsView: View {
-    let game: Game
+    @ObservedObject var viewModel: GameDetailsViewModel
     
     var body: some View {
-        Text(game.name)
+        Text(viewModel.game.name)
             .multilineTextAlignment(.leading)
         
-        Text("\(Int(floor(game.rating))) / 100")
+        Text("\(Int(floor(viewModel.game.rating))) / 100")
             .multilineTextAlignment(.leading)
         
-        Text(game.platforms.joined(separator: ", "))
+        Text(viewModel.game.platforms.joined(separator: ", "))
             .multilineTextAlignment(.leading)
         
-        Text(game.genres.joined(separator: ", "))
+        Text(viewModel.game.genres.joined(separator: ", "))
             .multilineTextAlignment(.leading)
         
-        Text(game.summary)
+        Text(viewModel.game.summary)
             .multilineTextAlignment(.leading)
     }
 }
 
 #Preview {
-    GameDetailsView(game: DisplayLogic.makeGame(id: "1", name: "The Witcher"))
+    GameDetailsView(viewModel: .init(game: DisplayLogic.makeGame(id: "1", name: "The Witcher")))
 }
 
 private class DisplayLogic: GameListDisplayLogic {

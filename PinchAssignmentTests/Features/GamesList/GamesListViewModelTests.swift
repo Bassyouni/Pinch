@@ -1,5 +1,5 @@
 //
-//  GameListViewModelTests.swift
+//  GamesListViewModelTests.swift
 //  PinchAssignmentTests
 //
 //  Created by Omar Bassyouni on 21/10/2024.
@@ -9,7 +9,7 @@ import XCTest
 import Combine
 import Pinch_Assignment
 
-final class GameListViewModelTests: XCTestCase {
+final class GamesListViewModelTests: XCTestCase {
     private let env = Environment()
     private var cancellables = Set<AnyCancellable>()
     
@@ -125,7 +125,7 @@ final class GameListViewModelTests: XCTestCase {
     }
 }
 
-private extension GameListViewModelTests {
+private extension GamesListViewModelTests {
     struct Environment {
         let loaderSpy = GamesLoaderSpy()
         let coordinate = CoordinateSpy()
