@@ -23,3 +23,11 @@ extension MainQueueDispatchDecorator: GamesLoader where T: GamesLoader {
             .eraseToAnyPublisher()
     }
 }
+
+extension MainQueueDispatchDecorator: GamesRefreshable where T: GamesRefreshable {
+    public func refreshGames() -> AnyPublisher<[Game], any Error> {
+        decoratee.refreshGames()
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+}

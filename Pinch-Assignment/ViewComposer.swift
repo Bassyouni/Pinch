@@ -5,7 +5,6 @@
 //  Created by Omar Bassyouni on 23/10/2024.
 //
 
-import Combine
 import SwiftUI
 
 @MainActor
@@ -24,10 +23,12 @@ final class ViewComposer {
         let client = URLSessionHTTPClient()
         let remoteLoader = RemoteGamesLoader(url: url, clientID: clientId, bearerToken: bearerToken, client: client)
         let store = CoreDataGamesStore()
-        let gamesLoader = GamesLoaderWithFallback(store: store, remote: remoteLoader)
+        let gamesLoaderWithFallback = GamesLoaderWithFallback(store: store, remote: remoteLoader)
+        let gamesLoader = MainQueueDispatchDecorator(gamesLoaderWithFallback)
         
         let viewModel = GameListViewModel(
-            gamesLoader: MainQueueDispatchDecorator(gamesLoader), gamesRefreshable: NullGamesRefreshable(),
+            gamesLoader: gamesLoader,
+            gamesRefreshable: gamesLoader,
             coordinate: { [weak router] destination in
                 switch destination {
                 case .gameDetails(let game):
@@ -41,11 +42,5 @@ final class ViewComposer {
     
     func composeGameDetailsView(with game: Game) -> some View {
         Text(game.name)
-    }
-}
-
-struct NullGamesRefreshable: GamesRefreshable {
-    func refreshGames() -> AnyPublisher<[Game], any Error> {
-        Empty().eraseToAnyPublisher()
     }
 }
