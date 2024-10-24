@@ -21,23 +21,6 @@ A SwiftUI application that showcases popular games from IGDB, featuring both onl
 - **CoreData** for local persistence
 - **URLSession** for networking
 
-## Architecture
-
-The project follows clean architecture principles with clear separation of concerns:
-
-### Domain
-- Core game models and protocols
-- Platform-independent business logic
-
-### Features
-- GameList feature with presentation and domain logic
-- Feature-specific protocols and models
-
-### Infrastructure
-- **API**: IGDB API integration with URLSession
-- **Storage**: CoreData implementation for offline support
-- **Navigation**: SwiftUI navigation handling
-
 ## Project Structure
 ```
 Pinch-Assignment/
