@@ -27,11 +27,16 @@ struct GameDetailsView: View {
                 Text("\(Int(floor(viewModel.game.rating))) / 100")
                     .multilineTextAlignment(.leading)
                 
-                Text(viewModel.game.platforms.joined(separator: ", "))
-                    .multilineTextAlignment(.leading)
+                if let platforms = viewModel.game.platforms {
+                    Text(platforms.joined(separator: ", "))
+                        .multilineTextAlignment(.leading)
+                }
                 
-                Text(viewModel.game.genres.joined(separator: ", "))
-                    .multilineTextAlignment(.leading)
+                if let genres = viewModel.game.genres {
+                    Text(genres.joined(separator: ", "))
+                        .multilineTextAlignment(.leading)
+                }
+                
                 
                 Text(viewModel.game.summary)
                     .multilineTextAlignment(.leading)

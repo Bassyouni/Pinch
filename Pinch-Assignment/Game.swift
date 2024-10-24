@@ -13,8 +13,8 @@ public struct Game: Equatable, Hashable {
     public let coverURL: URL
     public let summary: String
     public let rating: Double
-    public let platforms: [String]
-    public let genres: [String]
+    public let platforms: [String]?
+    public let genres: [String]?
     public let videosIDs: [String]?
     
     public init(
@@ -23,8 +23,8 @@ public struct Game: Equatable, Hashable {
         coverURL: URL,
         summary: String,
         rating: Double,
-        platforms: [String],
-        genres: [String],
+        platforms: [String]?,
+        genres: [String]?,
         videosIDs: [String]? = nil
     ) {
         self.id = id

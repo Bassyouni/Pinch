@@ -20,8 +20,8 @@ internal final class GamesMapper {
             coverURL: $0.cover.url,
             summary: $0.summary,
             rating: $0.rating,
-            platforms: $0.platforms.map { $0.name },
-            genres: $0.genres.map { $0.name },
+            platforms: $0.platforms?.map { $0.name },
+            genres: $0.genres?.map { $0.name },
             videosIDs: $0.videos?.map { $0.video_id }
         )}
         
@@ -36,8 +36,8 @@ internal final class GamesMapper {
         let summary: String
         let cover: CoverDTO
         let rating: Double
-        let genres: [GenereDTO]
-        let platforms: [PlatformDTO]
+        let genres: [GenereDTO]?
+        let platforms: [PlatformDTO]?
         let videos: [VideoDTO]?
     }
     

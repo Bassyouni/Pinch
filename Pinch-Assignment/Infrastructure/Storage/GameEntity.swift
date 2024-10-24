@@ -14,8 +14,8 @@ internal class GameEntity: NSManagedObject {
     @NSManaged var coverURL: URL
     @NSManaged var summary: String
     @NSManaged var rating: Double
-    @NSManaged var platforms: [String]
-    @NSManaged var genres: [String]
+    @NSManaged var platforms: [String]?
+    @NSManaged var genres: [String]?
     @NSManaged var videosIDs: [String]?
     @NSManaged var sortIndex: Int32
     

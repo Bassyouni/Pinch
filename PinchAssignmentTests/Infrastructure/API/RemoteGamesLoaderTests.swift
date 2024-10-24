@@ -199,8 +199,8 @@ private extension RemoteGamesLoaderTests {
             "rating": model.rating,
             "summary": model.summary,
             "cover": ["url": coverURL.absoluteString],
-            "platforms": model.platforms.map { ["name": $0] },
-            "genres": model.genres.map { ["name": $0] },
+            "platforms": model.platforms?.map { ["name": $0] } as Any,
+            "genres": model.genres?.map { ["name": $0] } as Any,
             "videos": model.videosIDs?.map { ["video_id": $0] } as Any,
             
         ]
