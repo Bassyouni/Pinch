@@ -10,8 +10,10 @@ import Foundation
 public final class GameDetailsViewModel: ObservableObject {
     
     let game: Game
+    let name: String
     
     public init(game: Game) {
         self.game = game
+        name = ""
     }
 }

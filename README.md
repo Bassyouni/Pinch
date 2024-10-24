@@ -24,6 +24,9 @@ A SwiftUI application that showcases popular games from IGDB, featuring both onl
 ## Project Structure
 ```
 Pinch-Assignment/
+├── Domain/
+│   ├── Game.swift
+│   ├── GameImageURLEncoder.swift
 ├── Features/
 │   └── GameList/
 │       ├── Domain/
@@ -32,8 +35,7 @@ Pinch-Assignment/
 │       │   └── GamesSaver.swift
 │       └── Presentation/
 │           ├── GamesListView.swift
-│           ├── GamesListViewModel.swift
-│           └── ViewState.swift
+│           └── GamesListViewModel.swift
 ├── Infrastructure/
 │   ├── API/
 │   ├── Storage/
