@@ -8,43 +8,80 @@
 import SwiftUI
 
 struct GameDetailsView: View {
-
+    
     let game: Game
+    let urlEncoder: GameImageURLEncoder
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                if let videoID = game.videosIDs?.last {
-                    YouTubeView(videoID: videoID)
-                        .frame(maxWidth: .infinity, idealHeight: 300)
+            VStack {
+                AsyncImage(url: coverURL) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                } placeholder: {
+                    ProgressView()
                 }
                 
-                Text(game.name)
-                    .multilineTextAlignment(.leading)
-                
-                Text("\(Int(floor(game.rating))) / 100")
-                    .multilineTextAlignment(.leading)
-                
-                if let platforms = game.platforms {
-                    Text(platforms.joined(separator: ", "))
-                        .multilineTextAlignment(.leading)
+                VStack(alignment: .leading) {
+                    HStack {
+                        Spacer()
+                        VStack {
+                            Text("Rating").font(.title)
+                            Text("\(Int(floor(game.rating))) / 100")
+                        }
+                    }
+                    
+                    if let platforms = game.platforms {
+                        section(
+                            title: "Platforms",
+                            body: platforms.joined(separator: ", ")
+                        )
+                    }
+                    
+                    if let genres = game.genres {
+                        section(
+                            title: "Genres",
+                            body: genres.joined(separator: ", ")
+                        )
+                    }
+                    
+                    if let videoID = game.videosIDs?.last {
+                        YouTubeView(videoID: videoID)
+                            .frame(maxWidth: .infinity, idealHeight: 300)
+                            .padding(.vertical, 10)
+                    }
+                    
+                    section(title: "Summary", body: game.summary)
                 }
-                
-                if let genres = game.genres {
-                    Text(genres.joined(separator: ", "))
-                        .multilineTextAlignment(.leading)
-                }
-                
-                Text(game.summary)
-                    .multilineTextAlignment(.leading)
+                .padding()
             }
+            .navigationTitle(game.name)
         }
-        
+    }
+    
+    @ViewBuilder
+    func section(title: String, body: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.title)
+            
+            Text(body)
+                .multilineTextAlignment(.leading)
+        }
+        .padding(.bottom, 10)
+    }
+    
+    private var coverURL: URL {
+        urlEncoder.encode(game.coverURL, forSize: .landscape)
     }
 }
 
 #Preview {
-    GameDetailsView(game: makeGame(id: "1", name: "The Witcher"))
+    NavigationView {
+        GameDetailsView(game: makeGame(id: "1", name: "The Witcher"), urlEncoder: IGDBGameImageURLEncoder())
+    }
+    
 }
 
 private func makeGame(id: String, name: String) -> Game {

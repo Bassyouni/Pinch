@@ -41,6 +41,6 @@ final class ViewComposer {
     }()
     
     func composeGameDetailsView(with game: Game) -> some View {
-        GameDetailsView(game: game)
+        GameDetailsView(game: game, urlEncoder: IGDBGameImageURLEncoder())
     }
 }
