@@ -48,4 +48,3 @@ Pinch-Assignment/
 - [ ] Infinite scrolling support
 - [ ] More detailed game information
 - [ ] UI improvements for different screen sizes
-
